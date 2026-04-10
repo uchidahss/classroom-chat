@@ -3,256 +3,113 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>授業チャット（先生）</title>
+<title>授業チャット — 先生</title>
 <style>
 :root {
   --primary: #4F46E5;
   --primary-bg: #EEF2FF;
+  --red: #EF4444;
+  --red-bg: #FFF1F2;
+  --red-border: #FECDD3;
+  --tea: #0F766E;
+  --tea-bg: #CCFBF1;
   --surface: #FFFFFF;
   --bg: #F1F5F9;
   --border: #E2E8F0;
   --text: #1E293B;
   --muted: #64748B;
-  --teacher: #0F766E;
-  --teacher-bg: #CCFBF1;
   --radius: 14px;
 }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body { height:100%; overflow:hidden; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', sans-serif;
-  background: var(--bg); color: var(--text);
-}
+body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sans-serif; background:var(--bg); color:var(--text); }
 
-/* ===== SETUP SCREEN ===== */
-#setup {
-  height: 100dvh;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 2rem 1.5rem; gap: 1.75rem;
-  background: var(--surface);
-}
-.setup-icon {
-  width: 68px; height: 68px; border-radius: 20px;
-  background: var(--teacher);
-  display: flex; align-items: center; justify-content: center;
-}
-.setup-icon svg { width: 34px; height: 34px; fill: white; }
-.setup-title { text-align: center; }
-.setup-title h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: .35rem; }
-.setup-title p { font-size: .85rem; color: var(--muted); line-height: 1.6; }
-.setup-form { width: 100%; max-width: 300px; display: flex; flex-direction: column; gap: 1rem; }
-.form-group label { display: block; font-size: .75rem; font-weight: 700; color: var(--muted); margin-bottom: .35rem; }
-.form-group input {
-  width: 100%; padding: .75rem 1rem;
-  border: 1.5px solid var(--border); border-radius: var(--radius);
-  font-size: .95rem; font-family: inherit; outline: none; background: var(--bg);
-  transition: border-color .2s;
-}
-.form-group input:focus { border-color: var(--teacher); background: var(--surface); }
-.code-box {
-  background: var(--teacher-bg); border-radius: var(--radius); padding: 1rem;
-  text-align: center;
-}
-.code-big {
-  font-family: 'SF Mono', monospace; font-size: 2.2rem; font-weight: 800;
-  letter-spacing: .6rem; color: var(--teacher); display: block; margin-bottom: .3rem;
-}
-.code-hint { font-size: .75rem; color: var(--teacher); }
-.regen-btn {
-  background: none; border: none; font-size: .75rem; color: var(--muted);
-  text-decoration: underline; cursor: pointer; display: block; margin: .2rem auto 0;
-}
-#start-btn {
-  width: 100%; padding: .9rem;
-  background: var(--teacher); color: white;
-  border: none; border-radius: var(--radius);
-  font-size: 1rem; font-weight: 700; cursor: pointer;
-}
-#start-btn:active { opacity: .85; }
+/* ===== SETUP ===== */
+#setup { height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem 1.5rem; gap:1.75rem; background:var(--surface); }
+.setup-icon { width:68px; height:68px; border-radius:20px; background:var(--tea); display:flex; align-items:center; justify-content:center; }
+.setup-icon svg { width:34px; height:34px; fill:white; }
+.setup-title { text-align:center; }
+.setup-title h1 { font-size:1.4rem; font-weight:700; margin-bottom:.35rem; }
+.setup-title p { font-size:.85rem; color:var(--muted); line-height:1.6; }
+.setup-form { width:100%; max-width:300px; display:flex; flex-direction:column; gap:1rem; }
+.form-group label { display:block; font-size:.75rem; font-weight:700; color:var(--muted); margin-bottom:.35rem; }
+.form-group input { width:100%; padding:.75rem 1rem; border:1.5px solid var(--border); border-radius:var(--radius); font-size:.95rem; font-family:inherit; outline:none; background:var(--bg); transition:border-color .2s; }
+.form-group input:focus { border-color:var(--tea); background:var(--surface); }
+.code-box { background:var(--tea-bg); border-radius:var(--radius); padding:1rem; text-align:center; }
+.code-big { font-family:'SF Mono',monospace; font-size:2.2rem; font-weight:800; letter-spacing:.6rem; color:var(--tea); display:block; margin-bottom:.3rem; }
+.code-hint { font-size:.75rem; color:var(--tea); }
+.regen-btn { background:none; border:none; font-size:.75rem; color:var(--muted); text-decoration:underline; cursor:pointer; display:block; margin:.3rem auto 0; }
+#start-btn { width:100%; padding:.9rem; background:var(--tea); color:white; border:none; border-radius:var(--radius); font-size:1rem; font-weight:700; cursor:pointer; }
+#start-btn:active { opacity:.85; }
 
 /* ===== APP ===== */
-#app {
-  display: none; height: 100dvh;
-  overflow-y: scroll; scroll-snap-type: y mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-.section {
-  height: 100dvh; scroll-snap-align: start;
-  display: flex; flex-direction: column;
-  overflow: hidden; background: var(--surface);
-}
-.s-head {
-  flex-shrink: 0; height: 50px;
-  background: var(--surface); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; padding: 0 1rem; gap: .625rem;
-}
-.room-pill {
-  font-size: .7rem; font-weight: 800; letter-spacing: .06rem;
-  padding: .2rem .65rem; border-radius: 100px;
-  background: var(--teacher-bg); color: var(--teacher);
-}
-.teacher-badge {
-  font-size: .68rem; font-weight: 700; padding: .15rem .55rem;
-  border-radius: 100px; background: var(--teacher); color: white;
-}
-.s-title { font-size: .9rem; font-weight: 600; flex: 1; }
-.icon-btn {
-  width: 32px; height: 32px; border-radius: 8px;
-  background: var(--bg); border: 1px solid var(--border);
-  font-size: .9rem; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
-.icon-btn:active { opacity: .7; }
+#app { display:none; height:100dvh; overflow-y:scroll; scroll-snap-type:y mandatory; -webkit-overflow-scrolling:touch; }
+.section { height:100dvh; scroll-snap-align:start; display:flex; flex-direction:column; overflow:hidden; background:var(--surface); }
 
-/* ===== SECTION 1: CHAT ===== */
-#msgs {
-  flex: 1; overflow-y: auto;
-  padding: .875rem .875rem .5rem;
-  display: flex; flex-direction: column; gap: .55rem;
-  scroll-behavior: smooth;
-}
-#msgs-empty {
-  margin: auto; text-align: center;
-  color: var(--muted); font-size: .85rem; line-height: 2;
-}
-.msg { display: flex; flex-direction: column; animation: fadeUp .28s ease; }
-@keyframes fadeUp { from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)} }
-.msg.mine { align-items: flex-end; }
-.msg.is-teacher { align-items: flex-end; }
-.msg-name { font-size: .66rem; font-weight: 700; margin-bottom: .2rem; padding: 0 .35rem; }
-.msg-bubble {
-  max-width: 78%; padding: .55rem .85rem;
-  border-radius: 16px 16px 16px 4px;
-  background: var(--bg);
-  font-size: .93rem; line-height: 1.5; word-break: break-word;
-}
-.msg.mine .msg-bubble {
-  border-radius: 16px 16px 4px 16px;
-  background: var(--primary-bg); color: var(--primary);
-}
-.msg.is-teacher .msg-bubble {
-  border-radius: 16px 16px 4px 16px;
-  background: var(--teacher-bg); color: var(--teacher);
-}
-.msg-bubble.is-emoji { font-size: 1.1rem; }
-.msg-bubble.is-poll {
-  display: flex; align-items: center; gap: .6rem;
-}
-.poll-circle {
-  width: 30px; height: 30px; border-radius: 50%;
-  background: var(--primary); color: white;
-  font-weight: 800; font-size: .95rem;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
+/* Header */
+.s-head { flex-shrink:0; height:50px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 1rem; gap:.625rem; }
+.room-pill { font-size:.7rem; font-weight:800; letter-spacing:.06rem; padding:.2rem .65rem; border-radius:100px; background:var(--tea-bg); color:var(--tea); }
+.teacher-badge { font-size:.68rem; font-weight:700; padding:.15rem .55rem; border-radius:100px; background:var(--tea); color:white; }
+.s-title { font-size:.9rem; font-weight:600; flex:1; }
+.icon-btn { width:32px; height:32px; border-radius:8px; background:var(--bg); border:1px solid var(--border); font-size:.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.icon-btn:active { opacity:.7; }
 
-.react-strip {
-  flex-shrink: 0; padding: .45rem .875rem;
-  border-top: 1px solid var(--border);
-  display: flex; gap: .4rem; overflow-x: auto;
-}
-.react-strip::-webkit-scrollbar { display: none; }
-.r-btn {
-  flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 1px;
-  padding: .35rem .55rem; background: var(--bg);
-  border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; font-size: 1.1rem;
-}
-.r-btn span { font-size: .56rem; color: var(--muted); white-space: nowrap; }
-.r-btn:active { background: var(--teacher-bg); border-color: var(--teacher); transform: scale(.9); }
+/* ===== REDSPA ZONE ===== */
+#redspa-zone { flex-shrink:0; background:var(--red-bg); border-bottom:1px solid var(--red-border); display:none; }
+.rs-card { padding:6px 12px 8px; border-bottom:1px solid var(--red-border); position:relative; overflow:hidden; }
+.rs-card:last-child { border-bottom:none; }
+.rs-name { font-size:.65rem; font-weight:800; color:#BE123C; margin-bottom:2px; display:flex; align-items:center; gap:4px; }
+.rs-name::before { content:'🔴'; font-size:.7rem; }
+.rs-text { font-size:.9rem; color:var(--text); line-height:1.4; word-break:break-word; }
+.rs-bar { position:absolute; bottom:0; left:0; height:3px; background:var(--red); border-radius:0 2px 2px 0; }
 
-.input-bar {
-  flex-shrink: 0; padding: .6rem .875rem .75rem;
-  display: flex; gap: .5rem; align-items: flex-end;
-  border-top: 1px solid var(--border); background: var(--surface);
+/* ===== CHAT AREA ===== */
+#chat-wrap { flex:1; position:relative; overflow:hidden; }
+#msgs { height:100%; overflow-y:auto; padding:.875rem .875rem .5rem; display:flex; flex-direction:column; gap:.55rem; scroll-behavior:smooth; }
+#msgs-empty { margin:auto; text-align:center; color:var(--muted); font-size:.85rem; line-height:2; }
+.msg { display:flex; flex-direction:column; animation:fadeUp .28s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+.msg-name { font-size:.66rem; font-weight:700; margin-bottom:.2rem; padding:0 .35rem; color:var(--muted); }
+.msg-bubble { max-width:85%; padding:.55rem .85rem; border-radius:16px 16px 16px 4px; background:var(--bg); font-size:.93rem; line-height:1.5; word-break:break-word; }
+
+/* Emoji float overlay */
+#emoji-overlay { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:10; }
+.float-emoji { position:absolute; bottom:0; font-size:1.8rem; pointer-events:none; animation:floatUp 2.5s ease-out forwards; line-height:1; }
+@keyframes floatUp {
+  0%   { opacity:1;   transform:translateY(0)     translateX(0); }
+  25%  { opacity:.9;  transform:translateY(-22vh) translateX(var(--d1)); }
+  60%  { opacity:.65; transform:translateY(-56vh) translateX(var(--d2)); }
+  100% { opacity:0;   transform:translateY(-88vh) translateX(var(--d3)); }
 }
-#msg-input {
-  flex: 1; padding: .65rem .9rem;
-  border: 1.5px solid var(--border); border-radius: var(--radius);
-  font-size: .93rem; font-family: inherit; outline: none;
-  resize: none; max-height: 90px; line-height: 1.5; background: var(--bg);
-  transition: border-color .2s;
-}
-#msg-input:focus { border-color: var(--teacher); background: var(--surface); }
-#send-btn {
-  width: 40px; height: 40px; flex-shrink: 0;
-  background: var(--teacher); border: none; border-radius: 12px;
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-}
-#send-btn:disabled { opacity: .35; pointer-events: none; }
-#send-btn svg { width: 17px; height: 17px; fill: white; }
 
 /* ===== SECTION 2: POLL ===== */
-#s-poll { background: var(--bg); }
-#s-poll .s-head { background: var(--surface); }
-.poll-body { flex: 1; overflow-y: auto; padding: 1rem .875rem; display: flex; flex-direction: column; gap: 1rem; }
-
-/* Teacher question editor */
-.q-editor {
-  background: var(--surface); border-radius: var(--radius);
-  border: 1.5px solid var(--teacher);
-  overflow: hidden;
-}
-.q-editor-label {
-  font-size: .7rem; font-weight: 700; color: var(--teacher);
-  padding: .5rem .875rem .25rem; background: var(--teacher-bg);
-}
-#q-input {
-  width: 100%; padding: .65rem .875rem;
-  border: none; outline: none; resize: none;
-  font-size: .93rem; font-family: inherit; line-height: 1.5;
-  max-height: 80px; background: var(--surface); color: var(--text);
-}
-#q-publish {
-  width: 100%; padding: .65rem;
-  background: var(--teacher); color: white; border: none;
-  font-size: .88rem; font-weight: 700; cursor: pointer;
-}
-#q-publish:active { opacity: .85; }
-
-.current-q-label { font-size: .72rem; font-weight: 700; color: var(--muted); }
-.current-q {
-  background: var(--surface); border-radius: var(--radius);
-  padding: .875rem 1rem; font-size: .95rem; line-height: 1.6;
-  border: 1px solid var(--border); color: var(--text); min-height: 52px;
-}
-.current-q.empty { color: var(--muted); font-style: italic; }
-
-.results-label { font-size: .72rem; font-weight: 700; color: var(--muted); }
-.result-rows { display: flex; flex-direction: column; gap: .5rem; }
-.r-row { display: flex; align-items: center; gap: .6rem; }
-.r-num { font-size: .85rem; font-weight: 800; color: var(--text); width: 14px; }
-.r-track { flex: 1; height: 22px; background: var(--border); border-radius: 5px; overflow: hidden; }
-.r-fill  { height: 100%; background: var(--primary); border-radius: 5px; transition: width .5s ease; width: 0%; }
-.r-count { font-size: .78rem; color: var(--muted); width: 26px; text-align: right; }
-.result-total { font-size: .75rem; color: var(--muted); text-align: right; margin-top: .3rem; }
-#clear-poll {
-  width: 100%; padding: .65rem;
-  border: 1.5px solid #EF4444; border-radius: var(--radius);
-  background: none; color: #EF4444; font-size: .85rem; font-weight: 600; cursor: pointer;
-}
-#clear-poll:active { background: #FEF2F2; }
+#s-poll { background:var(--bg); }
+#s-poll .s-head { background:var(--surface); }
+.poll-body { flex:1; overflow-y:auto; padding:1rem .875rem; display:flex; flex-direction:column; gap:.875rem; }
+.poll-sect-label { font-size:.72rem; font-weight:700; color:var(--muted); margin-bottom:.4rem; }
+.result-rows { display:flex; flex-direction:column; gap:.4rem; }
+.r-row { display:flex; align-items:center; gap:.55rem; }
+.r-num { font-size:.82rem; font-weight:800; color:var(--text); width:18px; text-align:right; }
+.r-track { flex:1; height:22px; background:var(--border); border-radius:4px; overflow:hidden; }
+.r-fill { height:100%; background:var(--primary); border-radius:4px; transition:width .5s ease; width:0%; }
+.r-count { font-size:.75rem; color:var(--muted); width:24px; text-align:right; }
+.result-total { font-size:.75rem; color:var(--muted); text-align:right; margin-top:.25rem; }
+#clear-poll { width:100%; padding:.65rem; border:1.5px solid var(--red); border-radius:var(--radius); background:none; color:var(--red); font-size:.85rem; font-weight:600; cursor:pointer; margin-top:.25rem; }
+#clear-poll:active { background:#FEF2F2; }
 
 /* ===== DOT NAV ===== */
-#dot-nav {
-  position: fixed; right: 10px; top: 50%; transform: translateY(-50%);
-  display: none; flex-direction: column; gap: 6px; z-index: 100;
-}
-.d {
-  width: 6px; height: 6px; border-radius: 3px;
-  background: rgba(100,116,139,.35); transition: height .25s, background .25s;
-}
-.d.on { height: 16px; background: var(--teacher); }
+#dot-nav { position:fixed; right:10px; top:50%; transform:translateY(-50%); display:none; flex-direction:column; gap:6px; z-index:100; }
+.d { width:6px; height:6px; border-radius:3px; background:rgba(100,116,139,.35); transition:height .25s,background .25s; cursor:pointer; }
+.d.on { height:16px; background:var(--tea); }
 </style>
 </head>
 <body>
 
 <!-- SETUP -->
 <div id="setup">
-  <div class="setup-icon">
-    <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
-  </div>
+  <div class="setup-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
   <div class="setup-title">
-    <h1>授業チャット <small style="font-size:.8rem;color:var(--teacher);">先生</small></h1>
+    <h1>授業チャット <small style="font-size:.8rem;color:var(--tea);">先生</small></h1>
     <p>ルームコードを学生に伝えてください<br>学生は student.html から参加します</p>
   </div>
   <div class="setup-form">
@@ -278,23 +135,16 @@ body {
       <span class="room-pill" id="room-pill">----</span>
       <span class="teacher-badge">先生</span>
       <span class="s-title" id="s-title">チャット</span>
-      <button class="icon-btn" id="clear-chat-btn" title="メッセージ消去">🗑</button>
+      <button class="icon-btn" id="clear-btn" title="表示をクリア">🗑</button>
     </div>
-    <div id="msgs">
-      <div id="msgs-empty">💬 学生からのメッセージがここに表示されます</div>
-    </div>
-    <div class="react-strip">
-      <button class="r-btn" data-e="👍" data-l="わかりました">👍<span>わかった</span></button>
-      <button class="r-btn" data-e="😮" data-l="なるほど！">😮<span>なるほど</span></button>
-      <button class="r-btn" data-e="🤔" data-l="もう一度説明します">🤔<span>もう一度</span></button>
-      <button class="r-btn" data-e="✋" data-l="質問を受け付けます">✋<span>質問OKです</span></button>
-      <button class="r-btn" data-e="🎉" data-l="よくできました！">🎉<span>よくできた</span></button>
-    </div>
-    <div class="input-bar">
-      <textarea id="msg-input" placeholder="全員へメッセージを送る…" rows="1"></textarea>
-      <button id="send-btn" disabled>
-        <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-      </button>
+
+    <!-- 赤スパエリア -->
+    <div id="redspa-zone"></div>
+
+    <!-- チャット本体 -->
+    <div id="chat-wrap">
+      <div id="msgs"><div id="msgs-empty">学生からのメッセージがここに表示されます</div></div>
+      <div id="emoji-overlay"></div>
     </div>
   </section>
 
@@ -303,40 +153,15 @@ body {
     <div class="s-head">
       <span class="room-pill" id="room-pill2">----</span>
       <span class="teacher-badge">先生</span>
-      <span class="s-title">アンケート</span>
+      <span class="s-title">アンケート結果</span>
     </div>
     <div class="poll-body">
-
-      <!-- 質問エディター（先生専用） -->
       <div>
-        <div class="q-editor">
-          <div class="q-editor-label">新しい質問を設定（全員に即時反映）</div>
-          <textarea id="q-input" placeholder="例: 今日の内容の理解度は？（1:低い ～ 5:高い）" rows="2"></textarea>
-          <button id="q-publish">この質問を出す →</button>
-        </div>
-      </div>
-
-      <!-- 現在の質問 -->
-      <div>
-        <div class="current-q-label" style="margin-bottom:.35rem;">現在表示中の質問</div>
-        <div class="current-q empty" id="current-q">まだ質問を設定していません</div>
-      </div>
-
-      <!-- 結果 -->
-      <div>
-        <div class="results-label" style="margin-bottom:.4rem;">回答結果</div>
-        <div class="result-rows">
-          <div class="r-row"><span class="r-num">1</span><div class="r-track"><div class="r-fill" id="rf1"></div></div><span class="r-count" id="rc1">0</span></div>
-          <div class="r-row"><span class="r-num">2</span><div class="r-track"><div class="r-fill" id="rf2"></div></div><span class="r-count" id="rc2">0</span></div>
-          <div class="r-row"><span class="r-num">3</span><div class="r-track"><div class="r-fill" id="rf3"></div></div><span class="r-count" id="rc3">0</span></div>
-          <div class="r-row"><span class="r-num">4</span><div class="r-track"><div class="r-fill" id="rf4"></div></div><span class="r-count" id="rc4">0</span></div>
-          <div class="r-row"><span class="r-num">5</span><div class="r-track"><div class="r-fill" id="rf5"></div></div><span class="r-count" id="rc5">0</span></div>
-        </div>
+        <div class="poll-sect-label">回答結果（1〜10）</div>
+        <div class="result-rows" id="result-rows"></div>
         <div class="result-total" id="result-total">回答 0 件</div>
       </div>
-
       <button id="clear-poll">🗑 アンケート結果をリセット</button>
-
     </div>
   </section>
 
@@ -344,11 +169,10 @@ body {
 
 <!-- Dot nav -->
 <div id="dot-nav">
-  <div class="d on" data-s="s-chat"></div>
-  <div class="d"    data-s="s-poll"></div>
+  <div class="d on"></div>
+  <div class="d"></div>
 </div>
 
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
 <script>
@@ -369,29 +193,32 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const myId    = 'teacher-' + Math.random().toString(36).slice(2,7);
-const myColor = '#0F766E';
-let roomCode  = null;
-let pollVotes = {1:0,2:0,3:0,4:0,5:0};
+let roomCode   = null;
+let pollVotes  = {};
+let emojiCount = 0;
 
 const $ = id => document.getElementById(id);
 
-// --- Room code generation ---
+// ---- Poll chart init ----
+(function(){
+  const rows = $('result-rows');
+  for(let i=1;i<=10;i++){
+    rows.innerHTML += `<div class="r-row"><span class="r-num">${i}</span><div class="r-track"><div class="r-fill" id="rf${i}"></div></div><span class="r-count" id="rc${i}">0</span></div>`;
+  }
+})();
+
+// ---- Room code generation ----
 const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-function genCode() {
-  return Array.from({length:4},()=>CHARS[Math.floor(Math.random()*CHARS.length)]).join('');
-}
+function genCode(){ return Array.from({length:4},()=>CHARS[Math.floor(Math.random()*CHARS.length)]).join(''); }
 let code = genCode();
 $('code-display').textContent = code;
 $('regen-btn').addEventListener('click', ()=>{ code=genCode(); $('code-display').textContent=code; });
 
-// --- Start room ---
+// ---- Start room ----
 $('start-btn').addEventListener('click', async ()=>{
   roomCode = code;
   const subject = $('subject-input').value.trim() || '授業チャット';
-  await db.ref(`classrooms/${roomCode}/settings`).set({
-    subject, createdAt: Date.now(), pollQuestion: null
-  });
+  await db.ref(`classrooms/${roomCode}/settings`).set({ subject, createdAt:Date.now() });
   $('room-pill').textContent  = roomCode;
   $('room-pill2').textContent = roomCode;
   $('s-title').textContent    = subject;
@@ -401,135 +228,133 @@ $('start-btn').addEventListener('click', async ()=>{
   startListening();
 });
 
-// --- Listeners ---
+// ---- Listeners ----
 function startListening() {
   const t0 = Date.now();
   let ready = false;
   setTimeout(()=>ready=true, 400);
 
+  // Messages
   db.ref(`classrooms/${roomCode}/messages`)
     .orderByChild('timestamp').startAt(t0)
-    .on('child_added', snap=>{
-      if(!ready) return;
-      renderMsg(snap.val(), snap.key);
-    });
+    .on('child_added', snap=>{ if(ready) renderMsg(snap.val(), snap.key); });
 
-  db.ref(`classrooms/${roomCode}/settings/pollQuestion`).on('value', snap=>{
-    const q = snap.val();
-    const el = $('current-q');
-    if(q){ el.textContent=q; el.classList.remove('empty'); }
-    else { el.textContent='まだ質問を設定していません'; el.classList.add('empty'); }
-  });
+  // Red spas
+  db.ref(`classrooms/${roomCode}/redspas`)
+    .orderByChild('timestamp').startAt(t0)
+    .on('child_added', snap=>{ if(ready) showRedspa(snap.val()); });
 
+  // Emoji animations
+  db.ref(`classrooms/${roomCode}/emojis`)
+    .orderByChild('timestamp').startAt(t0)
+    .on('child_added', snap=>{ if(ready) spawnEmoji(snap.val().emoji); });
+
+  // Poll
   db.ref(`classrooms/${roomCode}/pollVotes`).on('value', snap=>{
-    pollVotes={1:0,2:0,3:0,4:0,5:0};
-    snap.forEach(c=>{ const v=c.val().value; if(v>=1&&v<=5) pollVotes[v]++; });
+    pollVotes={};
+    snap.forEach(c=>{ const v=c.val().value; if(v>=1&&v<=10) pollVotes[v]=(pollVotes[v]||0)+1; });
     updatePollChart();
   });
 }
 
-// --- Render message ---
-const msgsEl = $('msgs'), msgsEmpty = $('msgs-empty');
-const displayedIds = new Set();
+// ---- Render message ----
+const msgsEl = $('msgs');
+const shownIds = new Set();
 
 function renderMsg(msg, key) {
-  if(displayedIds.has(key)) return;
-  displayedIds.add(key);
-  if(msgsEmpty) msgsEmpty.style.display='none';
-  const isMine    = msg.studentId === myId;
-  const isTeacher = msg.role === 'teacher';
+  if(shownIds.has(key)) return;
+  shownIds.add(key);
+  $('msgs-empty').style.display='none';
   const wrap = document.createElement('div');
-  wrap.className = 'msg' + (isMine||isTeacher?' mine':'') + (isTeacher?' is-teacher':'');
-
+  wrap.className = 'msg';
   const name = document.createElement('div');
   name.className = 'msg-name';
-  name.style.color = isTeacher ? '#0F766E' : (msg.color||'#64748B');
-  name.textContent = isTeacher ? '先生（自分）' : (isMine?'自分':msg.name);
+  name.style.color = msg.color||'#64748B';
+  name.textContent = msg.name||'匿名';
   wrap.appendChild(name);
-
   const bubble = document.createElement('div');
   bubble.className = 'msg-bubble';
-  if(msg.type==='text')       bubble.textContent = msg.text;
-  else if(msg.type==='emoji') { bubble.className+=' is-emoji'; bubble.textContent=`${msg.emoji} ${msg.label}`; }
-  else if(msg.type==='poll')  { bubble.className+=' is-poll'; bubble.innerHTML=`<div class="poll-circle">${msg.value}</div><span>で回答</span>`; }
-  if(!isMine&&!isTeacher) bubble.style.borderLeft=`3px solid ${msg.color||'#CBD5E1'}`;
+  bubble.textContent = msg.text||'';
+  bubble.style.borderLeft = `3px solid ${msg.color||'#CBD5E1'}`;
   wrap.appendChild(bubble);
   msgsEl.appendChild(wrap);
   msgsEl.scrollTop = msgsEl.scrollHeight;
-  while(msgsEl.querySelectorAll('.msg').length > 30){
-    const f=msgsEl.querySelector('.msg'); if(f) f.remove();
-  }
+  const all = msgsEl.querySelectorAll('.msg');
+  while(all.length>50){ const f=msgsEl.querySelector('.msg'); if(f) f.remove(); }
 }
 
-function push(data) {
-  if(!roomCode) return;
-  db.ref(`classrooms/${roomCode}/messages`).push({
-    ...data, studentId:myId, name:'先生', color:myColor, role:'teacher', timestamp:Date.now()
-  });
+// ---- Red supa ----
+const redspas = [];
+const rzone   = $('redspa-zone');
+
+function showRedspa(msg) {
+  if(redspas.length>=3) evictOldestRedspa();
+  const card = document.createElement('div');
+  card.className = 'rs-card';
+  card.innerHTML = `<div class="rs-name">${msg.name}</div><div class="rs-text">${escHtml(msg.text)}</div><div class="rs-bar" style="width:100%;transition:width 10s linear;"></div>`;
+  rzone.appendChild(card);
+  rzone.style.display='block';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ const b=card.querySelector('.rs-bar'); if(b) b.style.width='0%'; }));
+  const tid = setTimeout(()=>removeRedspa(card,tid), 10000);
+  redspas.push({el:card, timerId:tid});
 }
 
-// --- Text send ---
-const sendBtn = $('send-btn'), msgInput = $('msg-input');
-sendBtn.addEventListener('click', doSend);
-msgInput.addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend();} });
-msgInput.addEventListener('input', ()=>{
-  sendBtn.disabled=!msgInput.value.trim();
-  msgInput.style.height='auto';
-  msgInput.style.height=Math.min(msgInput.scrollHeight,90)+'px';
-});
-
-function doSend() {
-  const t=msgInput.value.trim();
-  if(!t||!roomCode) return;
-  push({type:'text',text:t});
-  msgInput.value=''; msgInput.style.height='auto'; sendBtn.disabled=true;
+function evictOldestRedspa() {
+  const oldest=redspas.shift();
+  if(!oldest) return;
+  clearTimeout(oldest.timerId);
+  oldest.el.remove();
+  if(!rzone.children.length) rzone.style.display='none';
 }
 
-// --- Reactions ---
-document.querySelector('.react-strip').addEventListener('click', e=>{
-  const btn=e.target.closest('.r-btn');
-  if(!btn||!roomCode) return;
-  push({type:'emoji',emoji:btn.dataset.e,label:btn.dataset.l});
-  btn.style.transform='scale(.82)';
-  setTimeout(()=>btn.style.transform='',180);
-});
+function removeRedspa(card, tid) {
+  const idx=redspas.findIndex(r=>r.timerId===tid);
+  if(idx>-1) redspas.splice(idx,1);
+  card.remove();
+  if(!rzone.children.length) rzone.style.display='none';
+}
 
-// --- Clear chat (display only) ---
-$('clear-chat-btn').addEventListener('click', ()=>{
-  if(!confirm('チャット表示をクリアしますか？\n（Firebaseのデータは残ります）')) return;
-  msgsEl.querySelectorAll('.msg').forEach(m=>m.remove());
-  displayedIds.clear();
-  if(msgsEmpty) msgsEmpty.style.display='block';
-});
+// ---- Emoji float animation ----
+function spawnEmoji(emoji) {
+  if(emojiCount>=10) return;
+  emojiCount++;
+  const overlay=$('emoji-overlay');
+  const el=document.createElement('div');
+  el.className='float-emoji';
+  el.textContent=emoji;
+  const x=10+Math.random()*70;
+  const d1=(Math.random()-.5)*40, d2=(Math.random()-.5)*60, d3=(Math.random()-.5)*30;
+  el.style.cssText=`left:${x}%; --d1:${d1}px; --d2:${d2}px; --d3:${d3}px;`;
+  overlay.appendChild(el);
+  setTimeout(()=>{ el.remove(); emojiCount--; }, 2500);
+}
 
-// --- Poll question publish ---
-$('q-publish').addEventListener('click', ()=>{
-  const q=$('q-input').value.trim();
-  if(!q||!roomCode) return;
-  db.ref(`classrooms/${roomCode}/settings/pollQuestion`).set(q);
-  db.ref(`classrooms/${roomCode}/pollVotes`).remove();
-  $('q-input').value='';
-});
-
-// --- Poll chart ---
+// ---- Poll chart ----
 function updatePollChart() {
   const total=Object.values(pollVotes).reduce((a,b)=>a+b,0);
-  for(let i=1;i<=5;i++){
-    const pct=total>0?Math.round(pollVotes[i]/total*100):0;
+  for(let i=1;i<=10;i++){
+    const pct=total>0?Math.round((pollVotes[i]||0)/total*100):0;
     $(`rf${i}`).style.width=pct+'%';
-    $(`rc${i}`).textContent=pollVotes[i];
+    $(`rc${i}`).textContent=pollVotes[i]||0;
   }
   $('result-total').textContent=`回答 ${total} 件`;
 }
 
-// --- Clear poll ---
-$('clear-poll').addEventListener('click', ()=>{
-  if(!confirm('アンケート結果をリセットしますか？')) return;
-  db.ref(`classrooms/${roomCode}/pollVotes`).remove();
-  db.ref(`classrooms/${roomCode}/settings/pollQuestion`).remove();
+// ---- Clear chat display ----
+$('clear-btn').addEventListener('click',()=>{
+  if(!confirm('チャット表示をクリアしますか？')) return;
+  msgsEl.querySelectorAll('.msg').forEach(m=>m.remove());
+  shownIds.clear();
+  $('msgs-empty').style.display='block';
 });
 
-// --- Dot nav ---
+// ---- Clear poll ----
+$('clear-poll').addEventListener('click',()=>{
+  if(!confirm('アンケート結果をリセットしますか？')) return;
+  db.ref(`classrooms/${roomCode}/pollVotes`).remove();
+});
+
+// ---- Dot nav ----
 const appEl=$('app');
 appEl.addEventListener('scroll',()=>{
   const idx=Math.round(appEl.scrollTop/window.innerHeight);
@@ -538,6 +363,8 @@ appEl.addEventListener('scroll',()=>{
 document.querySelectorAll('#dot-nav .d').forEach((d,i)=>{
   d.addEventListener('click',()=>appEl.scrollTo({top:i*window.innerHeight,behavior:'smooth'}));
 });
+
+function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
 </body>
 </html>
