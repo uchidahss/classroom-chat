@@ -572,7 +572,6 @@ function updatePollChart() {
 
 // ---- Q&A ----
 const qaInput = $('qa-input');
-const qaList  = $('qa-list');
 
 function updateQaSendBtn() {
   $('qa-send').disabled = !qaInput.value.trim() || !classActive;
@@ -587,27 +586,25 @@ $('qa-send').addEventListener('click', () => {
     answered: false, timestamp: Date.now()
   });
   qaInput.value = '';
+  qaInput.style.height = 'auto';
   updateQaSendBtn();
 });
 
 function renderQaList(snap) {
-  const empty = $('qa-empty');
-  while (qaList.firstChild) qaList.removeChild(qaList.firstChild);
+  const container = document.getElementById('qa-list');
+  if (!container) return;
+  container.innerHTML = '';
   const items = [];
   snap.forEach(c => items.push({ key: c.key, ...c.val() }));
   items.reverse();
   if (items.length === 0) {
-    qaList.appendChild(empty || (() => {
-      const d = document.createElement('div');
-      d.className = 'qa-empty'; d.id = 'qa-empty';
-      d.textContent = 'まだ質問はありません'; return d;
-    })());
+    container.innerHTML = '<div class="qa-empty">まだ質問はありません</div>';
     return;
   }
   items.forEach(item => {
     const card = document.createElement('div');
     card.className = 'qa-card' + (item.answered ? ' answered' : '');
-    card.style.borderLeft = `4px solid ${item.color || '#CBD5E1'}`;
+    card.style.borderLeft = '4px solid ' + (item.color || '#CBD5E1');
     const nameEl = document.createElement('div');
     nameEl.className = 'qa-card-name';
     nameEl.style.color = item.color || '#64748B';
@@ -629,7 +626,7 @@ function renderQaList(snap) {
       });
       card.appendChild(delBtn);
     }
-    qaList.appendChild(card);
+    container.appendChild(card);
   });
 }
 
