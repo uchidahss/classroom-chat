@@ -40,7 +40,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 #name-btn:active { opacity:.85; }
 #name-btn:disabled { opacity:.45; pointer-events:none; }
 
-#app { display:none; height:100dvh; flex-direction:column; overflow:hidden; }
+#app { display:none; position:fixed; top:0; left:0; right:0; bottom:0; flex-direction:column; overflow:hidden; }
 
 .app-head { flex-shrink:0; background:var(--surface); border-bottom:1px solid var(--border); padding:0 1rem; }
 .head-row { height:48px; display:flex; align-items:center; gap:.625rem; }
@@ -317,15 +317,25 @@ function startApp() {
 }
 
 function launchApp() {
-  $('loading').style.display    = 'none';
+  $('loading').style.display     = 'none';
   $('name-screen').style.display = 'none';
-  $('app').style.display        = 'flex';
+  $('app').style.display         = 'flex';
   setActive(false);
   checkCooldown();
   startListening();
   db.ref(`classrooms/${ROOM}/settings`).get().then(snap => {
     if (snap.exists() && snap.val().subject) $('s-title').textContent = snap.val().subject;
   }).catch(() => {});
+  // キーボード表示時に画面が飛ばないよう高さを固定
+  if (window.visualViewport) {
+    const adjustHeight = () => {
+      $('app').style.height = window.visualViewport.height + 'px';
+      $('app').style.top    = window.visualViewport.offsetTop + 'px';
+    };
+    window.visualViewport.addEventListener('resize', adjustHeight);
+    window.visualViewport.addEventListener('scroll', adjustHeight);
+    adjustHeight();
+  }
 }
 
 // リロード時は名前入力をスキップ
