@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>授業チャット</title>
+<title>授業チャット — 先生</title>
 <style>
 :root {
   --primary: #4F46E5;
@@ -11,6 +11,8 @@
   --red: #EF4444;
   --red-bg: #FFF1F2;
   --red-border: #FECDD3;
+  --tea: #0F766E;
+  --tea-bg: #CCFBF1;
   --surface: #FFFFFF;
   --bg: #F1F5F9;
   --border: #E2E8F0;
@@ -23,7 +25,7 @@ html, body { height:100%; overflow:hidden; }
 body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sans-serif; background:var(--surface); color:var(--text); }
 
 #loading { height:100dvh; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:1rem; }
-.spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--primary); border-radius:50%; animation:spin .8s linear infinite; }
+.spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--tea); border-radius:50%; animation:spin .8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 #loading p { font-size:.9rem; color:var(--muted); }
 
@@ -31,12 +33,13 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 
 .app-head { flex-shrink:0; background:var(--surface); border-bottom:1px solid var(--border); padding:0 1rem; }
 .head-row { height:48px; display:flex; align-items:center; gap:.625rem; }
-.room-pill { font-size:.7rem; font-weight:800; letter-spacing:.06rem; padding:.2rem .65rem; border-radius:100px; background:var(--primary-bg); color:var(--primary); }
+.room-pill { font-size:.7rem; font-weight:800; letter-spacing:.06rem; padding:.2rem .65rem; border-radius:100px; background:var(--tea-bg); color:var(--tea); }
+.teacher-badge { font-size:.68rem; font-weight:700; padding:.15rem .55rem; border-radius:100px; background:var(--tea); color:white; flex-shrink:0; }
 .s-title { font-size:.9rem; font-weight:600; flex:1; }
 
 .tabs { display:flex; }
 .tab { flex:1; padding:.55rem 0; text-align:center; font-size:.82rem; font-weight:700; color:var(--muted); border-bottom:2.5px solid transparent; cursor:pointer; user-select:none; transition:color .15s, border-color .15s; }
-.tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+.tab.active { color:var(--tea); border-bottom-color:var(--tea); }
 
 .panel { flex:1; display:none; flex-direction:column; overflow:hidden; }
 .panel.active { display:flex; }
@@ -59,7 +62,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 .msg.other { align-items:flex-start; }
 
 .msg-bubble {
-  max-width:78%;
+  max-width:85%;
   padding:.55rem .85rem;
   border-radius:16px;
   font-size:.93rem;
@@ -70,34 +73,17 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 #emoji-overlay { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:10; }
 .float-emoji { position:absolute; bottom:10%; font-size:1.8rem; pointer-events:none; line-height:1; animation:floatUp 2.5s ease-out forwards; }
 @keyframes floatUp {
-  0%   { opacity:1; transform:translateY(0)      translateX(0); }
-  100% { opacity:0; transform:translateY(-44vh)  translateX(var(--d1)); }
+  0%   { opacity:1; transform:translateY(0)     translateX(0); }
+  100% { opacity:0; transform:translateY(-44vh) translateX(var(--d1)); }
 }
 
-.react-strip { flex-shrink:0; padding:.4rem .875rem; border-top:1px solid var(--border); display:flex; gap:.35rem; overflow-x:auto; }
-.react-strip::-webkit-scrollbar { display:none; }
-.r-btn { flex-shrink:0; width:40px; height:40px; background:var(--bg); border:1.5px solid var(--border); border-radius:10px; cursor:pointer; font-size:1.2rem; display:flex; align-items:center; justify-content:center; }
-.r-btn:active { background:var(--primary-bg); border-color:var(--primary); transform:scale(.88); }
-
-.input-bar { flex-shrink:0; padding:.6rem .875rem .75rem; display:flex; gap:.45rem; align-items:flex-end; border-top:1px solid var(--border); background:var(--surface); }
-#msg-input { flex:1; padding:.65rem .9rem; border:1.5px solid var(--border); border-radius:var(--radius); font-size:.93rem; font-family:inherit; outline:none; resize:none; max-height:90px; line-height:1.5; background:var(--bg); transition:border-color .2s; }
-#msg-input:focus { border-color:var(--primary); background:var(--surface); }
-.plane-btn { width:40px; height:40px; flex-shrink:0; border:none; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.plane-btn:active { transform:scale(.9); }
-.plane-btn:disabled { opacity:.35; pointer-events:none; }
-#send-btn { background:var(--primary); }
-#redspa-btn { background:var(--red); }
-#redspa-btn.cooling { background:#94A3B8; cursor:not-allowed; flex-direction:column; }
-#redspa-btn.cooling .cd-text { font-size:.58rem; color:white; font-weight:700; line-height:1.2; }
-.plane-svg { width:18px; height:18px; fill:white; }
+.clear-bar { flex-shrink:0; padding:.6rem .875rem .75rem; border-top:1px solid var(--border); background:var(--surface); }
+#clear-btn { width:100%; padding:.65rem; border:1.5px solid var(--border); border-radius:var(--radius); background:var(--bg); color:var(--muted); font-size:.9rem; font-weight:600; cursor:pointer; }
+#clear-btn:active { background:#FEE2E2; border-color:var(--red); color:var(--red); }
 
 #panel-poll { background:var(--bg); }
 .poll-body { flex:1; overflow-y:auto; padding:1rem .875rem; display:flex; flex-direction:column; gap:1rem; }
 .poll-sect-label { font-size:.72rem; font-weight:700; color:var(--muted); margin-bottom:.5rem; }
-.vote-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:.4rem; }
-.v-btn { padding:.85rem .2rem; background:var(--surface); border:1.5px solid var(--border); border-radius:12px; cursor:pointer; font-size:1rem; font-weight:800; color:var(--muted); transition:all .15s; }
-.v-btn:active { transform:scale(.92); }
-.v-btn.voted { background:var(--primary); color:white; border-color:var(--primary); }
 .result-rows { display:flex; flex-direction:column; gap:.5rem; }
 .r-row { display:flex; align-items:center; gap:.6rem; }
 .r-num { font-size:.85rem; font-weight:800; color:var(--text); width:20px; text-align:right; flex-shrink:0; }
@@ -105,6 +91,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 .r-fill { height:100%; background:var(--primary); border-radius:6px; transition:width .5s ease; width:0%; }
 .r-count { font-size:.78rem; color:var(--muted); width:26px; text-align:right; flex-shrink:0; }
 .result-total { font-size:.75rem; color:var(--muted); text-align:right; margin-top:.2rem; }
+#clear-poll { width:100%; padding:.65rem; border:1.5px solid var(--red); border-radius:var(--radius); background:none; color:var(--red); font-size:.85rem; font-weight:600; cursor:pointer; }
+#clear-poll:active { background:#FEF2F2; }
 </style>
 </head>
 <body>
@@ -118,6 +106,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
   <div class="app-head">
     <div class="head-row">
       <span class="room-pill">授業中</span>
+      <span class="teacher-badge">先生</span>
       <span class="s-title" id="s-title">チャット</span>
     </div>
     <div class="tabs">
@@ -129,42 +118,22 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
   <div class="panel active" id="panel-chat">
     <div id="redspa-zone"></div>
     <div id="chat-wrap">
-      <div id="msgs"><div id="msgs-empty">💬 メッセージを送ってみましょう</div></div>
+      <div id="msgs"><div id="msgs-empty">学生からのメッセージがここに表示されます</div></div>
       <div id="emoji-overlay"></div>
     </div>
-    <div class="react-strip">
-      <button class="r-btn" data-e="👍">👍</button>
-      <button class="r-btn" data-e="👎">👎</button>
-      <button class="r-btn" data-e="👏">👏</button>
-      <button class="r-btn" data-e="❤️">❤️</button>
-      <button class="r-btn" data-e="💦">💦</button>
-      <button class="r-btn" data-e="😊">😊</button>
-      <button class="r-btn" data-e="😮">😮</button>
-      <button class="r-btn" data-e="😭">😭</button>
-      <button class="r-btn" data-e="🤣">🤣</button>
-    </div>
-    <div class="input-bar">
-      <textarea id="msg-input" placeholder="メッセージを入力…" rows="1"></textarea>
-      <button id="send-btn" class="plane-btn" disabled>
-        <svg class="plane-svg" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-      </button>
-      <button id="redspa-btn" class="plane-btn">
-        <svg class="plane-svg" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-      </button>
+    <div class="clear-bar">
+      <button id="clear-btn">🗑 全員のチャットをクリア</button>
     </div>
   </div>
 
   <div class="panel" id="panel-poll">
     <div class="poll-body">
       <div>
-        <div class="poll-sect-label">回答する（1〜10）</div>
-        <div class="vote-grid" id="vote-grid"></div>
-      </div>
-      <div>
-        <div class="poll-sect-label">みんなの回答</div>
+        <div class="poll-sect-label">回答結果（1〜10）</div>
         <div class="result-rows" id="result-rows"></div>
         <div class="result-total" id="result-total">回答 0 件</div>
       </div>
+      <button id="clear-poll">🗑 アンケート結果をリセット</button>
     </div>
   </div>
 </div>
@@ -187,26 +156,18 @@ const ROOM = "MYCLASS";
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-const ANIMALS = ['ネコ','イヌ','パンダ','キツネ','ウサギ','タヌキ','クマ','トリ','カエル','ゾウ','ライオン','コアラ','ペンギン','ハムスター','サル','クジラ'];
-const COLORS   = ['#4F46E5','#0891B2','#059669','#D97706','#DC2626','#7C3AED','#DB2777','#065F46'];
-const myName   = ANIMALS[Math.floor(Math.random()*ANIMALS.length)];
-const myColor  = COLORS[Math.floor(Math.random()*COLORS.length)];
-const myId     = Math.random().toString(36).slice(2,9);
 let pollVotes  = {};
 let emojiCount = 0;
-let cooldownTimer = null;
 const redspas  = [];
 
 const $      = id => document.getElementById(id);
 const msgsEl = $('msgs');
 const rzone  = $('redspa-zone');
+const shownIds = new Set();
 
-// ---- Poll UI ----
-const vg = $('vote-grid'), rr = $('result-rows');
+// ---- Poll chart rows ----
+const rr = $('result-rows');
 for (let i = 1; i <= 10; i++) {
-  const btn = document.createElement('button');
-  btn.className='v-btn'; btn.dataset.v=i; btn.textContent=i;
-  vg.appendChild(btn);
   rr.insertAdjacentHTML('beforeend',
     `<div class="r-row"><span class="r-num">${i}</span><div class="r-track"><div class="r-fill" id="rf${i}"></div></div><span class="r-count" id="rc${i}">0</span></div>`);
 }
@@ -224,10 +185,13 @@ document.querySelectorAll('.tab').forEach(tab => {
 // ---- 起動 ----
 $('loading').style.display = 'none';
 $('app').style.display     = 'flex';
-checkCooldown();
 startListening();
 db.ref(`classrooms/${ROOM}/settings`).get().then(snap => {
-  if (snap.exists() && snap.val().subject) $('s-title').textContent = snap.val().subject;
+  if (!snap.exists()) {
+    db.ref(`classrooms/${ROOM}/settings`).set({ subject: '授業チャット', createdAt: Date.now() });
+  } else if (snap.val().subject) {
+    $('s-title').textContent = snap.val().subject;
+  }
 }).catch(() => {});
 
 // ---- Listeners ----
@@ -238,7 +202,7 @@ function startListening() {
 
   db.ref(`classrooms/${ROOM}/messages`)
     .orderByChild('timestamp').startAt(t0)
-    .on('child_added', snap => { if (ready) renderMsg(snap.val()); });
+    .on('child_added', snap => { if (ready) renderMsg(snap.val(), snap.key); });
 
   db.ref(`classrooms/${ROOM}/redspas`)
     .orderByChild('timestamp').startAt(t0)
@@ -253,11 +217,6 @@ function startListening() {
     snap.forEach(c => { const v = c.val().value; if (v >= 1 && v <= 10) pollVotes[v] = (pollVotes[v] || 0) + 1; });
     updatePollChart();
   });
-
-  db.ref(`classrooms/${ROOM}/clearSignal`).on('value', snap => {
-    if (!snap.val()) return;
-    clearChatDisplay();
-  });
 }
 
 // ---- カラー → 薄い背景色 ----
@@ -269,15 +228,16 @@ function faintBg(hex) {
 }
 
 // ---- Render message ----
-function renderMsg(msg) {
+function renderMsg(msg, key) {
+  if (shownIds.has(key)) return;
+  shownIds.add(key);
   $('msgs-empty').style.display = 'none';
-  const isMine = msg.studentId === myId;
-  const color  = msg.color || '#4F46E5';
-  const wrap   = document.createElement('div');
-  wrap.className = 'msg ' + (isMine ? 'mine' : 'other');
+  const color = msg.color || '#4F46E5';
+  const wrap  = document.createElement('div');
+  wrap.className = 'msg other';
   const bubble = document.createElement('div');
   bubble.className = 'msg-bubble';
-  bubble.textContent = msg.text;
+  bubble.textContent = msg.text || '';
   bubble.style.background = faintBg(color);
   bubble.style.color = color;
   wrap.appendChild(bubble);
@@ -287,44 +247,34 @@ function renderMsg(msg) {
   while (all.length > 50) { const f = msgsEl.querySelector('.msg'); if (f) f.remove(); }
 }
 
-function clearChatDisplay() {
-  msgsEl.querySelectorAll('.msg').forEach(m => m.remove());
-  $('msgs-empty').style.display = 'block';
-  while (redspas.length) evictOldestRedspa();
+// ---- Red supa ----
+function showRedspa(msg) {
+  if (redspas.length >= 3) evictOldestRedspa();
+  const card = document.createElement('div');
+  card.className = 'rs-card';
+  card.innerHTML = `<div class="rs-name">${esc(msg.name)}</div><div class="rs-text">${esc(msg.text)}</div><div class="rs-bar" style="width:100%;transition:width 10s linear;"></div>`;
+  rzone.appendChild(card);
+  rzone.style.display = 'block';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const b = card.querySelector('.rs-bar'); if (b) b.style.width = '0%';
+  }));
+  const tid = setTimeout(() => removeRedspa(card, tid), 10000);
+  redspas.push({ el: card, timerId: tid });
 }
 
-// ---- Push ----
-function push(data) {
-  db.ref(`classrooms/${ROOM}/messages`).push({
-    ...data, studentId: myId, name: myName, color: myColor, timestamp: Date.now()
-  });
+function evictOldestRedspa() {
+  const o = redspas.shift();
+  if (!o) return;
+  clearTimeout(o.timerId); o.el.remove();
+  if (!rzone.children.length) rzone.style.display = 'none';
 }
 
-// ---- Text send ----
-const sendBtn = $('send-btn'), msgInput = $('msg-input');
-sendBtn.addEventListener('click', doSend);
-msgInput.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); } });
-msgInput.addEventListener('input', () => {
-  sendBtn.disabled = !msgInput.value.trim();
-  msgInput.style.height = 'auto';
-  msgInput.style.height = Math.min(msgInput.scrollHeight, 90) + 'px';
-});
-
-function doSend() {
-  const t = msgInput.value.trim();
-  if (!t) return;
-  push({ type: 'text', text: t });
-  msgInput.value = ''; msgInput.style.height = 'auto'; sendBtn.disabled = true;
+function removeRedspa(card, tid) {
+  const idx = redspas.findIndex(r => r.timerId === tid);
+  if (idx > -1) redspas.splice(idx, 1);
+  card.remove();
+  if (!rzone.children.length) rzone.style.display = 'none';
 }
-
-// ---- Reactions ----
-document.querySelector('.react-strip').addEventListener('click', e => {
-  const btn = e.target.closest('.r-btn');
-  if (!btn) return;
-  db.ref(`classrooms/${ROOM}/emojis`).push({ emoji: btn.dataset.e, timestamp: Date.now() });
-  btn.style.transform = 'scale(.82)';
-  setTimeout(() => btn.style.transform = '', 180);
-});
 
 // ---- Emoji float ----
 function spawnEmoji(emoji) {
@@ -341,88 +291,7 @@ function spawnEmoji(emoji) {
   setTimeout(() => { el.remove(); emojiCount--; }, 2500);
 }
 
-// ---- Red supa ----
-function showRedspa(msg) {
-  if (redspas.length >= 3) evictOldestRedspa();
-  const card = document.createElement('div');
-  card.className = 'rs-card';
-  card.innerHTML = `<div class="rs-name">${esc(msg.name)}</div><div class="rs-text">${esc(msg.text)}</div><div class="rs-bar" style="width:100%;transition:width 10s linear;"></div>`;
-  rzone.appendChild(card);
-  rzone.style.display = 'block';
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    const b = card.querySelector('.rs-bar');
-    if (b) b.style.width = '0%';
-  }));
-  const tid = setTimeout(() => removeRedspa(card, tid), 10000);
-  redspas.push({ el: card, timerId: tid });
-}
-
-function evictOldestRedspa() {
-  const o = redspas.shift();
-  if (!o) return;
-  clearTimeout(o.timerId);
-  o.el.remove();
-  if (!rzone.children.length) rzone.style.display = 'none';
-}
-
-function removeRedspa(card, tid) {
-  const idx = redspas.findIndex(r => r.timerId === tid);
-  if (idx > -1) redspas.splice(idx, 1);
-  card.remove();
-  if (!rzone.children.length) rzone.style.display = 'none';
-}
-
-// ---- Cooldown ----
-function checkCooldown() {
-  db.ref(`classrooms/${ROOM}/redspa_cd/${myId}`).get().then(snap => {
-    if (!snap.exists()) return;
-    const rem = snap.val() - Date.now();
-    if (rem > 0) startCooldownUI(rem);
-  });
-}
-
-function startCooldownUI(ms) {
-  const btn = $('redspa-btn');
-  btn.classList.add('cooling');
-  btn.innerHTML = '<span class="cd-text">--:--</span>';
-  if (cooldownTimer) clearInterval(cooldownTimer);
-  let rem = Math.ceil(ms / 1000);
-  const tick = () => {
-    if (rem <= 0) {
-      clearInterval(cooldownTimer);
-      btn.classList.remove('cooling');
-      btn.innerHTML = '<svg class="plane-svg" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>';
-      return;
-    }
-    const cd = btn.querySelector('.cd-text');
-    if (cd) cd.textContent = `${Math.floor(rem/60)}:${String(rem%60).padStart(2,'0')}`;
-    rem--;
-  };
-  tick();
-  cooldownTimer = setInterval(tick, 1000);
-}
-
-$('redspa-btn').addEventListener('click', () => {
-  const btn = $('redspa-btn');
-  if (btn.classList.contains('cooling')) return;
-  const text = msgInput.value.trim();
-  if (!text) { msgInput.focus(); return; }
-  db.ref(`classrooms/${ROOM}/redspas`).push({ text, name: myName, color: myColor, studentId: myId, timestamp: Date.now() });
-  db.ref(`classrooms/${ROOM}/redspa_cd/${myId}`).set(Date.now() + 5 * 60 * 1000);
-  startCooldownUI(5 * 60 * 1000);
-  msgInput.value = ''; msgInput.style.height = 'auto'; sendBtn.disabled = true;
-});
-
-// ---- Poll ----
-$('vote-grid').addEventListener('click', e => {
-  const btn = e.target.closest('.v-btn');
-  if (!btn) return;
-  const v = parseInt(btn.dataset.v);
-  db.ref(`classrooms/${ROOM}/pollVotes/${myId}`).set({ value: v, timestamp: Date.now() });
-  document.querySelectorAll('.v-btn').forEach(b => b.classList.remove('voted'));
-  btn.classList.add('voted');
-});
-
+// ---- Poll chart ----
 function updatePollChart() {
   const total = Object.values(pollVotes).reduce((a, b) => a + b, 0);
   for (let i = 1; i <= 10; i++) {
@@ -432,6 +301,22 @@ function updatePollChart() {
   }
   $('result-total').textContent = `回答 ${total} 件`;
 }
+
+// ---- Clear chat (all clients) ----
+$('clear-btn').addEventListener('click', () => {
+  if (!confirm('全員のチャット画面をクリアしますか？')) return;
+  db.ref(`classrooms/${ROOM}/clearSignal`).set(Date.now());
+  msgsEl.querySelectorAll('.msg').forEach(m => m.remove());
+  shownIds.clear();
+  $('msgs-empty').style.display = 'block';
+  while (redspas.length) evictOldestRedspa();
+});
+
+// ---- Clear poll ----
+$('clear-poll').addEventListener('click', () => {
+  if (!confirm('アンケート結果をリセットしますか？')) return;
+  db.ref(`classrooms/${ROOM}/pollVotes`).remove();
+});
 
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
