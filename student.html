@@ -233,17 +233,14 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// ---- Auto-join (v3 logic preserved) ----
-(async function init() {
-  // 先生がルームを作っていなければ自動作成
-  const snap = await db.ref(`classrooms/${ROOM}/settings`).get();
-  const subj = snap.exists() ? (snap.val().subject || '授業チャット') : '授業チャット';
-  $('s-title').textContent = subj;
-  $('loading').style.display  = 'none';
-  $('app').style.display      = 'flex';
-  checkCooldown();
-  startListening();
-})();
+// ---- 即時起動 ----
+$('loading').style.display = 'none';
+$('app').style.display     = 'flex';
+checkCooldown();
+startListening();
+db.ref(`classrooms/${ROOM}/settings`).get().then(snap => {
+  if (snap.exists() && snap.val().subject) $('s-title').textContent = snap.val().subject;
+}).catch(() => {});
 
 // ---- Listeners ----
 function startListening() {
