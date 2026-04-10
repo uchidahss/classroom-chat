@@ -60,6 +60,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 .msg { display:flex; flex-direction:column; animation:fadeUp .28s ease; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 .msg.other { align-items:flex-start; }
+.msg-name { font-size:.67rem; font-weight:700; margin-bottom:.2rem; padding:0 .35rem; }
 .msg-bubble { max-width:85%; padding:.55rem .85rem; border-radius:16px; font-size:.93rem; line-height:1.5; word-break:break-word; }
 
 #emoji-overlay { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:10; }
@@ -238,6 +239,11 @@ function renderMsg(msg, key) {
   const color = msg.color || '#4F46E5';
   const wrap  = document.createElement('div');
   wrap.className = 'msg other';
+  const nameEl = document.createElement('div');
+  nameEl.className = 'msg-name';
+  nameEl.style.color = color;
+  nameEl.textContent = msg.name || '匿名';
+  wrap.appendChild(nameEl);
   const bubble = document.createElement('div');
   bubble.className = 'msg-bubble';
   bubble.textContent = msg.text || '';
