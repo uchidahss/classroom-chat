@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firebase 接続テスト</title>
+<style>
+body { font-family: -apple-system, sans-serif; padding: 2rem; max-width: 500px; margin: 0 auto; }
+h1 { font-size: 1.2rem; margin-bottom: 1.5rem; }
+.step { margin-bottom: 1rem; padding: .875rem 1rem; border-radius: 10px; border: 1px solid #E2E8F0; }
+.step-title { font-size: .8rem; font-weight: 700; color: #64748B; margin-bottom: .3rem; }
+.step-result { font-size: .95rem; font-weight: 600; }
+.ok   { background: #F0FDF4; border-color: #86EFAC; color: #166534; }
+.err  { background: #FEF2F2; border-color: #FCA5A5; color: #991B1B; }
+.wait { background: #F8FAFC; color: #475569; }
+button { margin-top: 1.5rem; padding: .75rem 1.5rem; background: #4F46E5; color: white; border: none; border-radius: 10px; font-size: 1rem; cursor: pointer; }
+</style>
+</head>
+<body>
+<h1>🔍 Firebase 接続テスト</h1>
+
+<div class="step wait" id="s1">
+  <div class="step-title">STEP 1: Firebase SDK 読み込み</div>
+  <div class="step-result" id="r1">確認中…</div>
+</div>
+<div class="step wait" id="s2">
+  <div class="step-title">STEP 2: Firebase 初期化</div>
+  <div class="step-result" id="r2">待機中</div>
+</div>
+<div class="step wait" id="s3">
+  <div class="step-title">STEP 3: Realtime Database 書き込みテスト</div>
+  <div class="step-result" id="r3">待機中</div>
+</div>
+<div class="step wait" id="s4">
+  <div class="step-title">STEP 4: Realtime Database 読み込みテスト</div>
+  <div class="step-result" id="r4">待機中</div>
+</div>
+
+<button onclick="location.reload()">もう一度テスト</button>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"
+  onload="step1ok()" onerror="step1err()"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+<script>
+/* ================================================================
+   ★ ここに Firebase 設定を貼り付けてください（student/teacher と同じもの）
+   ================================================================ */
+const firebaseConfig = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL:       "https://YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+/* ================================================================ */
+
+function setStep(id, ok, msg) {
+  const s = document.getElementById('s'+id);
+  const r = document.getElementById('r'+id);
+  s.className = 'step ' + (ok ? 'ok' : 'err');
+  r.textContent = (ok ? '✅ ' : '❌ ') + msg;
+}
+
+function step1ok() {
+  setStep(1, true, 'Firebase SDK 読み込み成功');
+  // STEP 2
+  try {
+    firebase.initializeApp(firebaseConfig);
+    setStep(2, true, '初期化成功（プロジェクト: ' + firebaseConfig.projectId + '）');
+    step3();
+  } catch(e) {
+    setStep(2, false, 'エラー: ' + e.message);
+  }
+}
+
+function step1err() {
+  setStep(1, false, 'Firebase SDK の読み込みに失敗（ネット接続を確認）');
+}
+
+function step3() {
+  const db = firebase.database();
+  const testRef = db.ref('test_connection/ping');
+  const timer = setTimeout(() => {
+    setStep(3, false, 'タイムアウト（5秒以上応答なし）— databaseURLが正しいか確認してください');
+    setStep(4, false, 'STEP 3 に失敗したためスキップ');
+  }, 5000);
+
+  testRef.set({ time: Date.now(), msg: 'hello' })
+    .then(() => {
+      clearTimeout(timer);
+      setStep(3, true, '書き込み成功！');
+      step4(db);
+    })
+    .catch(e => {
+      clearTimeout(timer);
+      setStep(3, false, 'エラー: ' + e.message + ' — Firebaseのルール設定を確認してください');
+    });
+}
+
+function step4(db) {
+  const timer = setTimeout(() => {
+    setStep(4, false, 'タイムアウト');
+  }, 5000);
+
+  db.ref('test_connection/ping').get()
+    .then(snap => {
+      clearTimeout(timer);
+      if (snap.exists()) {
+        setStep(4, true, '読み込み成功！Firebase は正常に動作しています 🎉');
+      } else {
+        setStep(4, false, 'データが見つかりません');
+      }
+    })
+    .catch(e => {
+      clearTimeout(timer);
+      setStep(4, false, 'エラー: ' + e.message);
+    });
+}
+</script>
+</body>
+</html>
