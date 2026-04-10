@@ -185,18 +185,18 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// ---- Auto-start ----
-(async function init() {
-  // ルームが存在しなければ作成
-  const snap = await db.ref(`classrooms/${ROOM}/settings`).get();
+// ---- 即時起動 ----
+$('loading').style.display = 'none';
+$('app').style.display     = 'flex';
+startListening();
+// ルーム設定を書き込み（初回のみ）
+db.ref(`classrooms/${ROOM}/settings`).get().then(snap => {
   if (!snap.exists()) {
-    await db.ref(`classrooms/${ROOM}/settings`).set({ subject: '授業チャット', createdAt: Date.now() });
+    db.ref(`classrooms/${ROOM}/settings`).set({ subject: '授業チャット', createdAt: Date.now() });
+  } else if (snap.val().subject) {
+    $('s-title').textContent = snap.val().subject;
   }
-  $('s-title').textContent = snap.exists() ? (snap.val().subject || '授業チャット') : '授業チャット';
-  $('loading').style.display = 'none';
-  $('app').style.display     = 'flex';
-  startListening();
-})();
+}).catch(() => {});
 
 // ---- Listeners ----
 function startListening() {
