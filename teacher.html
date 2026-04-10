@@ -241,9 +241,10 @@ function startListening() {
     updatePollChart();
   });
 
-  db.ref(`classrooms/${ROOM}/qa`).on('value', snap => {
-    renderQaList(snap);
-  });
+  const qaRef = db.ref(`classrooms/${ROOM}/qa`).orderByChild('timestamp');
+  qaRef.on('child_added',   snap => { addQaCard(snap.key, snap.val()); });
+  qaRef.on('child_changed', snap => { updateQaCard(snap.key, snap.val()); });
+  qaRef.on('child_removed', snap => { removeQaCard(snap.key); });
 }
 
 // ---- カラー → 薄い背景色 ----
@@ -362,43 +363,60 @@ $('end-btn').addEventListener('click', () => {
 });
 
 // ---- Q&A ----
-function renderQaList(snap) {
+function makeQaCard(key, data) {
+  const card = document.createElement('div');
+  card.id = 'qa-' + key;
+  card.className = 'qa-card' + (data.answered ? ' answered' : '');
+  card.style.borderLeft = '4px solid ' + (data.color || '#CBD5E1');
+  const cb = document.createElement('input');
+  cb.type = 'checkbox'; cb.className = 'qa-check';
+  cb.checked = !!data.answered;
+  cb.addEventListener('change', () => {
+    db.ref(`classrooms/${ROOM}/qa/` + key + '/answered').set(cb.checked);
+  });
+  card.appendChild(cb);
+  const body = document.createElement('div');
+  body.className = 'qa-card-body';
+  const nameEl = document.createElement('div');
+  nameEl.className = 'qa-card-name';
+  nameEl.style.color = data.color || '#64748B';
+  nameEl.textContent = data.name || '匿名';
+  body.appendChild(nameEl);
+  const textEl = document.createElement('div');
+  textEl.className = 'qa-card-text';
+  textEl.textContent = data.text;
+  body.appendChild(textEl);
+  card.appendChild(body);
+  return card;
+}
+
+function addQaCard(key, data) {
   const qaBody = document.querySelector('#panel-qa .qa-body');
   if (!qaBody) return;
-  qaBody.innerHTML = '';
-  const items = [];
-  snap.forEach(c => items.push({ key: c.key, ...c.val() }));
-  items.reverse();
-  if (items.length === 0) {
-    qaBody.innerHTML = '<div class="qa-empty">まだ質問はありません</div>';
-    return;
+  const empty = document.getElementById('qa-empty');
+  if (empty) empty.remove();
+  const card = makeQaCard(key, data);
+  qaBody.insertBefore(card, qaBody.firstChild);
+}
+
+function updateQaCard(key, data) {
+  const existing = document.getElementById('qa-' + key);
+  if (!existing) return;
+  existing.className = 'qa-card' + (data.answered ? ' answered' : '');
+  const cb = existing.querySelector('.qa-check');
+  if (cb) cb.checked = !!data.answered;
+}
+
+function removeQaCard(key) {
+  const el = document.getElementById('qa-' + key);
+  if (el) el.remove();
+  const qaBody = document.querySelector('#panel-qa .qa-body');
+  if (qaBody && qaBody.children.length === 0) {
+    const d = document.createElement('div');
+    d.className = 'qa-empty'; d.id = 'qa-empty';
+    d.textContent = 'まだ質問はありません';
+    qaBody.appendChild(d);
   }
-  items.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'qa-card' + (item.answered ? ' answered' : '');
-    card.style.borderLeft = '4px solid ' + (item.color || '#CBD5E1');
-    const cb = document.createElement('input');
-    cb.type = 'checkbox'; cb.className = 'qa-check';
-    cb.checked = !!item.answered;
-    const itemKey = item.key;
-    cb.addEventListener('change', () => {
-      db.ref(`classrooms/${ROOM}/qa/${itemKey}/answered`).set(cb.checked);
-    });
-    card.appendChild(cb);
-    const body = document.createElement('div');
-    body.className = 'qa-card-body';
-    const nameEl = document.createElement('div');
-    nameEl.className = 'qa-card-name';
-    nameEl.style.color = item.color || '#64748B';
-    nameEl.textContent = item.name || '匿名';
-    body.appendChild(nameEl);
-    const textEl = document.createElement('div');
-    textEl.className = 'qa-card-text';
-    textEl.textContent = item.text;
-    body.appendChild(textEl);
-    card.appendChild(body);
-    qaBody.appendChild(card);
-  });
 }
 
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
