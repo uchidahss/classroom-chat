@@ -259,9 +259,13 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
 const COLORS = ['#4F46E5','#0891B2','#059669','#D97706','#DC2626','#7C3AED','#DB2777','#065F46'];
-let myName  = '';
-const myColor = COLORS[Math.floor(Math.random()*COLORS.length)];
-const myId    = Math.random().toString(36).slice(2,9);
+
+// sessionStorage で状態を復元（リロード対応）
+let myName  = sessionStorage.getItem('myName')  || '';
+let myColor = sessionStorage.getItem('myColor') || COLORS[Math.floor(Math.random()*COLORS.length)];
+let myId    = sessionStorage.getItem('myId')    || Math.random().toString(36).slice(2,9);
+sessionStorage.setItem('myColor', myColor);
+sessionStorage.setItem('myId',    myId);
 let pollVotes   = {};
 let emojiCount  = 0;
 let cooldownTimer = null;
@@ -292,10 +296,7 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// ---- 名前入力画面 ----
-$('loading').style.display = 'none';
-$('name-screen').style.display = 'flex';
-
+// ---- 名前入力 or 自動復帰 ----
 const nameInput = $('name-input');
 const nameBtn   = $('name-btn');
 
@@ -311,14 +312,28 @@ function startApp() {
   const val = nameInput.value.trim();
   if (!val) return;
   myName = val;
+  sessionStorage.setItem('myName', myName);
+  launchApp();
+}
+
+function launchApp() {
+  $('loading').style.display    = 'none';
   $('name-screen').style.display = 'none';
-  $('app').style.display = 'flex';
+  $('app').style.display        = 'flex';
   setActive(false);
   checkCooldown();
   startListening();
   db.ref(`classrooms/${ROOM}/settings`).get().then(snap => {
     if (snap.exists() && snap.val().subject) $('s-title').textContent = snap.val().subject;
   }).catch(() => {});
+}
+
+// リロード時は名前入力をスキップ
+if (myName) {
+  launchApp();
+} else {
+  $('loading').style.display    = 'none';
+  $('name-screen').style.display = 'flex';
 }
 
 // ---- アクティブ状態の切り替え ----
