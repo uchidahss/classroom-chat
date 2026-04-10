@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
 <title>授業チャット</title>
 <style>
 :root {
@@ -40,7 +40,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 #name-btn:active { opacity:.85; }
 #name-btn:disabled { opacity:.45; pointer-events:none; }
 
-#app { display:none; position:fixed; top:0; left:0; right:0; bottom:0; flex-direction:column; overflow:hidden; }
+#app { display:none; height:100dvh; flex-direction:column; overflow:hidden; }
 
 .app-head { flex-shrink:0; background:var(--surface); border-bottom:1px solid var(--border); padding:0 1rem; }
 .head-row { height:48px; display:flex; align-items:center; gap:.625rem; }
@@ -326,14 +326,7 @@ function launchApp() {
   db.ref(`classrooms/${ROOM}/settings`).get().then(snap => {
     if (snap.exists() && snap.val().subject) $('s-title').textContent = snap.val().subject;
   }).catch(() => {});
-  // キーボード表示時に入力欄がキーボードのすぐ上に来るよう高さのみ調整
-  if (window.visualViewport) {
-    const adjustHeight = () => {
-      $('app').style.height = window.visualViewport.height + 'px';
-    };
-    window.visualViewport.addEventListener('resize', adjustHeight);
-    adjustHeight();
-  }
+
 }
 
 // リロード時は名前入力をスキップ
