@@ -255,13 +255,13 @@ function showRedspa(msg) {
   if (redspas.length >= 3) evictOldestRedspa();
   const card = document.createElement('div');
   card.className = 'rs-card';
-  card.innerHTML = `<div class="rs-name">${esc(msg.name)}</div><div class="rs-text">${esc(msg.text)}</div><div class="rs-bar" style="width:100%;transition:width 10s linear;"></div>`;
+  card.innerHTML = `<div class="rs-name">${esc(msg.name)}</div><div class="rs-text">${esc(msg.text)}</div><div class="rs-bar" style="width:100%;transition:width 20s linear;"></div>`;
   rzone.appendChild(card);
   rzone.style.display = 'block';
   requestAnimationFrame(() => requestAnimationFrame(() => {
     const b = card.querySelector('.rs-bar'); if (b) b.style.width = '0%';
   }));
-  const tid = setTimeout(() => removeRedspa(card, tid), 10000);
+  const tid = setTimeout(() => removeRedspa(card, tid), 20000);
   redspas.push({ el: card, timerId: tid });
 }
 
