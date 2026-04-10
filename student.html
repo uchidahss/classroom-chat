@@ -386,9 +386,10 @@ function startListening() {
     clearChatDisplay();
   });
 
-  db.ref(`classrooms/${ROOM}/qa`).on('value', snap => {
-    renderQaList(snap);
-  });
+  const qaRef = db.ref(`classrooms/${ROOM}/qa`).orderByChild('timestamp');
+  qaRef.on('child_added',   snap => { addQaCard(snap.key, snap.val()); });
+  qaRef.on('child_changed', snap => { updateQaCard(snap.key, snap.val()); });
+  qaRef.on('child_removed', snap => { removeQaCard(snap.key); });
 }
 
 // ---- カラー → 薄い背景色 ----
@@ -582,52 +583,73 @@ $('qa-send').addEventListener('click', () => {
   const text = qaInput.value.trim();
   if (!text || !classActive) return;
   db.ref(`classrooms/${ROOM}/qa`).push({
-    text, name: myName, color: myColor, studentId: myId,
-    answered: false, timestamp: Date.now()
+    text:      text,
+    name:      myName,
+    color:     myColor,
+    studentId: myId,
+    answered:  false,
+    timestamp: Date.now()
   });
   qaInput.value = '';
   qaInput.style.height = 'auto';
   updateQaSendBtn();
 });
 
-function renderQaList(snap) {
+function makeQaCard(key, data) {
+  const card = document.createElement('div');
+  card.id = 'qa-' + key;
+  card.className = 'qa-card' + (data.answered ? ' answered' : '');
+  card.style.borderLeft = '4px solid ' + (data.color || '#CBD5E1');
+  const nameEl = document.createElement('div');
+  nameEl.className = 'qa-card-name';
+  nameEl.style.color = data.color || '#64748B';
+  nameEl.textContent = data.name || '匿名';
+  card.appendChild(nameEl);
+  const textEl = document.createElement('div');
+  textEl.className = 'qa-card-text';
+  textEl.textContent = data.text;
+  card.appendChild(textEl);
+  if (data.studentId === myId) {
+    const delBtn = document.createElement('button');
+    delBtn.className = 'qa-card-del';
+    delBtn.textContent = '🗑';
+    delBtn.title = '削除';
+    delBtn.addEventListener('click', () => {
+      if (confirm('この質問を削除しますか？')) {
+        db.ref(`classrooms/${ROOM}/qa/` + key).remove();
+      }
+    });
+    card.appendChild(delBtn);
+  }
+  return card;
+}
+
+function addQaCard(key, data) {
   const container = document.getElementById('qa-list');
   if (!container) return;
-  container.innerHTML = '';
-  const items = [];
-  snap.forEach(c => items.push({ key: c.key, ...c.val() }));
-  items.reverse();
-  if (items.length === 0) {
-    container.innerHTML = '<div class="qa-empty">まだ質問はありません</div>';
-    return;
+  const empty = document.getElementById('qa-empty');
+  if (empty) empty.remove();
+  // 新しい投稿を先頭に挿入
+  const card = makeQaCard(key, data);
+  container.insertBefore(card, container.firstChild);
+}
+
+function updateQaCard(key, data) {
+  const existing = document.getElementById('qa-' + key);
+  if (!existing) return;
+  existing.className = 'qa-card' + (data.answered ? ' answered' : '');
+}
+
+function removeQaCard(key) {
+  const el = document.getElementById('qa-' + key);
+  if (el) el.remove();
+  const container = document.getElementById('qa-list');
+  if (container && container.children.length === 0) {
+    const d = document.createElement('div');
+    d.className = 'qa-empty'; d.id = 'qa-empty';
+    d.textContent = 'まだ質問はありません';
+    container.appendChild(d);
   }
-  items.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'qa-card' + (item.answered ? ' answered' : '');
-    card.style.borderLeft = '4px solid ' + (item.color || '#CBD5E1');
-    const nameEl = document.createElement('div');
-    nameEl.className = 'qa-card-name';
-    nameEl.style.color = item.color || '#64748B';
-    nameEl.textContent = item.name || '匿名';
-    card.appendChild(nameEl);
-    const textEl = document.createElement('div');
-    textEl.className = 'qa-card-text';
-    textEl.textContent = item.text;
-    card.appendChild(textEl);
-    if (item.studentId === myId) {
-      const delBtn = document.createElement('button');
-      delBtn.className = 'qa-card-del';
-      delBtn.textContent = '🗑';
-      delBtn.title = '削除';
-      delBtn.addEventListener('click', () => {
-        if (confirm('この質問を削除しますか？')) {
-          db.ref(`classrooms/${ROOM}/qa/${item.key}`).remove();
-        }
-      });
-      card.appendChild(delBtn);
-    }
-    container.appendChild(card);
-  });
 }
 
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
