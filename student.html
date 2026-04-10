@@ -20,31 +20,38 @@
 }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body { height:100%; overflow:hidden; }
-body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sans-serif; background:var(--bg); color:var(--text); }
+body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sans-serif; background:var(--surface); color:var(--text); }
 
-/* ===== JOIN ===== */
-#join { height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem 1.5rem; gap:1.75rem; background:var(--surface); }
-.join-icon { width:68px; height:68px; border-radius:20px; background:var(--primary); display:flex; align-items:center; justify-content:center; }
-.join-icon svg { width:34px; height:34px; fill:white; }
-.join-title { text-align:center; }
-.join-title h1 { font-size:1.4rem; font-weight:700; margin-bottom:.4rem; }
-.join-title p { font-size:.88rem; color:var(--muted); line-height:1.6; }
-.join-form { width:100%; max-width:280px; display:flex; flex-direction:column; gap:.875rem; }
-#code-input { width:100%; padding:1rem; font-size:1.75rem; text-align:center; letter-spacing:.6rem; font-family:'SF Mono',monospace; font-weight:700; border:2px solid var(--border); border-radius:var(--radius); outline:none; background:var(--bg); transition:border-color .2s; }
-#code-input:focus { border-color:var(--primary); background:var(--surface); }
-#join-btn { width:100%; padding:.9rem; background:var(--primary); color:white; border:none; border-radius:var(--radius); font-size:1rem; font-weight:700; cursor:pointer; }
-#join-btn:active { opacity:.85; }
-#join-error { color:var(--red); font-size:.83rem; text-align:center; display:none; }
+/* ===== LAYOUT ===== */
+#app { height:100dvh; display:flex; flex-direction:column; overflow:hidden; }
 
-/* ===== APP ===== */
-#app { display:none; height:100dvh; overflow-y:scroll; scroll-snap-type:y mandatory; -webkit-overflow-scrolling:touch; }
-.section { height:100dvh; scroll-snap-align:start; display:flex; flex-direction:column; overflow:hidden; background:var(--surface); }
-
-/* Header */
-.s-head { flex-shrink:0; height:50px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 1rem; gap:.625rem; }
+/* ===== HEADER ===== */
+.app-head {
+  flex-shrink:0; background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:0 1rem;
+  display:flex; flex-direction:column;
+}
+.head-row {
+  height:48px; display:flex; align-items:center; gap:.625rem;
+}
 .room-pill { font-size:.7rem; font-weight:800; letter-spacing:.06rem; padding:.2rem .65rem; border-radius:100px; background:var(--primary-bg); color:var(--primary); }
 .s-title { font-size:.9rem; font-weight:600; flex:1; }
-.head-meta { font-size:.78rem; color:var(--muted); }
+
+/* ===== TABS ===== */
+.tabs { display:flex; gap:0; }
+.tab {
+  flex:1; padding:.55rem 0; text-align:center;
+  font-size:.82rem; font-weight:700; color:var(--muted);
+  border-bottom:2.5px solid transparent;
+  cursor:pointer; transition:all .15s;
+  user-select:none;
+}
+.tab.active { color:var(--primary); border-bottom-color:var(--primary); }
+
+/* ===== PANELS ===== */
+.panel { flex:1; display:none; flex-direction:column; overflow:hidden; }
+.panel.active { display:flex; }
 
 /* ===== REDSPA ZONE ===== */
 #redspa-zone { flex-shrink:0; background:var(--red-bg); border-bottom:1px solid var(--red-border); display:none; }
@@ -55,7 +62,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 .rs-text { font-size:.9rem; color:var(--text); line-height:1.4; word-break:break-word; }
 .rs-bar { position:absolute; bottom:0; left:0; height:3px; background:var(--red); border-radius:0 2px 2px 0; }
 
-/* ===== CHAT AREA ===== */
+/* ===== CHAT ===== */
 #chat-wrap { flex:1; position:relative; overflow:hidden; }
 #msgs { height:100%; overflow-y:auto; padding:.875rem .875rem .5rem; display:flex; flex-direction:column; gap:.55rem; scroll-behavior:smooth; }
 #msgs-empty { margin:auto; text-align:center; color:var(--muted); font-size:.85rem; line-height:2; }
@@ -68,12 +75,16 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 
 /* Emoji float overlay */
 #emoji-overlay { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:10; }
-.float-emoji { position:absolute; bottom:0; font-size:1.8rem; pointer-events:none; animation:floatUp 2.5s ease-out forwards; line-height:1; }
+.float-emoji {
+  position:absolute; bottom:10%; font-size:1.8rem;
+  pointer-events:none; line-height:1;
+  animation:floatUp 2.5s ease-out forwards;
+}
 @keyframes floatUp {
-  0%   { opacity:1;   transform:translateY(0)     translateX(0); }
-  25%  { opacity:.9;  transform:translateY(-22vh) translateX(var(--d1)); }
-  60%  { opacity:.65; transform:translateY(-56vh) translateX(var(--d2)); }
-  100% { opacity:0;   transform:translateY(-88vh) translateX(var(--d3)); }
+  0%   { opacity:1;   transform:translateY(0)      translateX(0); }
+  25%  { opacity:.9;  transform:translateY(-11vh)  translateX(var(--d1)); }
+  60%  { opacity:.65; transform:translateY(-28vh)  translateX(var(--d2)); }
+  100% { opacity:0;   transform:translateY(-44vh)  translateX(var(--d3)); }
 }
 
 /* ===== REACTION STRIP ===== */
@@ -86,110 +97,87 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 .input-bar { flex-shrink:0; padding:.6rem .875rem .75rem; display:flex; gap:.45rem; align-items:flex-end; border-top:1px solid var(--border); background:var(--surface); }
 #msg-input { flex:1; padding:.65rem .9rem; border:1.5px solid var(--border); border-radius:var(--radius); font-size:.93rem; font-family:inherit; outline:none; resize:none; max-height:90px; line-height:1.5; background:var(--bg); transition:border-color .2s; }
 #msg-input:focus { border-color:var(--primary); background:var(--surface); }
-#redspa-btn { width:40px; height:40px; flex-shrink:0; background:var(--red); color:white; border:none; border-radius:12px; font-size:1rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
-#redspa-btn.cooling { background:#94A3B8; font-size:.62rem; letter-spacing:0; cursor:not-allowed; flex-direction:column; gap:0; line-height:1.2; }
-#redspa-btn:not(.cooling):active { transform:scale(.9); }
-#send-btn { width:40px; height:40px; flex-shrink:0; background:var(--primary); border:none; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-#send-btn:disabled { opacity:.35; pointer-events:none; }
-#send-btn svg { width:17px; height:17px; fill:white; }
 
-/* ===== SECTION 2: POLL ===== */
-#s-poll { background:var(--bg); }
-#s-poll .s-head { background:var(--surface); }
-.poll-body { flex:1; overflow-y:auto; padding:1rem .875rem; display:flex; flex-direction:column; gap:.875rem; }
-.poll-sect-label { font-size:.72rem; font-weight:700; color:var(--muted); margin-bottom:.4rem; }
+/* Paper plane buttons */
+.plane-btn { width:40px; height:40px; flex-shrink:0; border:none; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; }
+.plane-btn:active { transform:scale(.9); }
+.plane-btn:disabled { opacity:.35; pointer-events:none; }
+#send-btn { background:var(--primary); }
+#redspa-btn { background:var(--red); }
+#redspa-btn.cooling { background:#94A3B8; cursor:not-allowed; flex-direction:column; gap:1px; }
+#redspa-btn.cooling .cd-text { font-size:.58rem; color:white; font-weight:700; line-height:1; }
+
+/* ===== POLL PANEL ===== */
+.poll-body { flex:1; overflow-y:auto; padding:1rem .875rem; display:flex; flex-direction:column; gap:1rem; background:var(--bg); }
+.poll-sect-label { font-size:.72rem; font-weight:700; color:var(--muted); margin-bottom:.5rem; }
+
 .vote-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:.4rem; }
-.v-btn { padding:.75rem .2rem; background:var(--surface); border:1.5px solid var(--border); border-radius:12px; cursor:pointer; font-size:1rem; font-weight:800; color:var(--muted); transition:all .15s; }
+.v-btn { padding:.85rem .2rem; background:var(--surface); border:1.5px solid var(--border); border-radius:12px; cursor:pointer; font-size:1rem; font-weight:800; color:var(--muted); transition:all .15s; }
 .v-btn:active { transform:scale(.92); }
 .v-btn.voted { background:var(--primary); color:white; border-color:var(--primary); }
-.result-rows { display:flex; flex-direction:column; gap:.4rem; }
-.r-row { display:flex; align-items:center; gap:.55rem; }
-.r-num { font-size:.82rem; font-weight:800; color:var(--text); width:18px; text-align:right; }
-.r-track { flex:1; height:18px; background:var(--border); border-radius:4px; overflow:hidden; }
-.r-fill { height:100%; background:var(--primary); border-radius:4px; transition:width .5s ease; width:0%; }
-.r-count { font-size:.75rem; color:var(--muted); width:24px; text-align:right; }
-.result-total { font-size:.75rem; color:var(--muted); text-align:right; margin-top:.25rem; }
 
-/* ===== DOT NAV ===== */
-#dot-nav { position:fixed; right:10px; top:50%; transform:translateY(-50%); display:none; flex-direction:column; gap:6px; z-index:100; }
-.d { width:6px; height:6px; border-radius:3px; background:rgba(100,116,139,.35); transition:height .25s,background .25s; cursor:pointer; }
-.d.on { height:16px; background:var(--primary); }
+.result-rows { display:flex; flex-direction:column; gap:.55rem; }
+.r-row { display:flex; align-items:center; gap:.6rem; }
+.r-num { font-size:.85rem; font-weight:800; color:var(--text); width:20px; text-align:right; flex-shrink:0; }
+.r-track { flex:1; height:28px; background:var(--border); border-radius:6px; overflow:hidden; }
+.r-fill { height:100%; background:var(--primary); border-radius:6px; transition:width .5s ease; width:0%; }
+.r-count { font-size:.78rem; color:var(--muted); width:26px; text-align:right; flex-shrink:0; }
+.result-total { font-size:.75rem; color:var(--muted); text-align:right; margin-top:.2rem; }
+
+/* Plane SVG */
+.plane-svg { width:18px; height:18px; fill:white; }
 </style>
 </head>
 <body>
-
-<!-- JOIN -->
-<div id="join">
-  <div class="join-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
-  <div class="join-title"><h1>授業チャット</h1><p>先生から教えてもらった<br>ルームコードを入力してください</p></div>
-  <div class="join-form">
-    <input id="code-input" type="text" placeholder="XXXX" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false">
-    <button id="join-btn">参加する</button>
-    <div id="join-error">⚠ ルームが見つかりません</div>
-  </div>
-</div>
-
-<!-- APP -->
 <div id="app">
 
-  <!-- Section 1: Chat -->
-  <section class="section" id="s-chat">
-    <div class="s-head">
-      <span class="room-pill" id="room-pill">----</span>
+  <!-- Header + Tabs -->
+  <div class="app-head">
+    <div class="head-row">
+      <span class="room-pill">授業中</span>
       <span class="s-title" id="s-title">チャット</span>
-      <span class="head-meta" id="head-meta"></span>
     </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="chat">💬 チャット</div>
+      <div class="tab"        data-tab="poll">📊 アンケート</div>
+    </div>
+  </div>
 
-    <!-- 赤スパエリア -->
+  <!-- Chat Panel -->
+  <div class="panel active" id="panel-chat">
     <div id="redspa-zone"></div>
-
-    <!-- チャット本体 -->
     <div id="chat-wrap">
       <div id="msgs"><div id="msgs-empty">💬 メッセージを送ってみましょう</div></div>
       <div id="emoji-overlay"></div>
     </div>
-
-    <!-- リアクション -->
     <div class="react-strip">
       <button class="r-btn" data-e="👍">👍</button>
+      <button class="r-btn" data-e="👎">👎</button>
+      <button class="r-btn" data-e="👏">👏</button>
+      <button class="r-btn" data-e="❤️">❤️</button>
+      <button class="r-btn" data-e="💦">💦</button>
+      <button class="r-btn" data-e="😊">😊</button>
       <button class="r-btn" data-e="😮">😮</button>
-      <button class="r-btn" data-e="🤔">🤔</button>
-      <button class="r-btn" data-e="✋">✋</button>
-      <button class="r-btn" data-e="😄">😄</button>
-      <button class="r-btn" data-e="😅">😅</button>
-      <button class="r-btn" data-e="🎉">🎉</button>
-      <button class="r-btn" data-e="😴">😴</button>
+      <button class="r-btn" data-e="😭">😭</button>
+      <button class="r-btn" data-e="🤣">🤣</button>
     </div>
-
-    <!-- 入力 -->
     <div class="input-bar">
       <textarea id="msg-input" placeholder="メッセージを入力…" rows="1"></textarea>
-      <button id="redspa-btn" title="赤スパ（5分に1回）">🔴</button>
-      <button id="send-btn" disabled><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+      <button id="send-btn" class="plane-btn" disabled>
+        <svg class="plane-svg" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+      <button id="redspa-btn" class="plane-btn" title="赤スパ（5分に1回）">
+        <svg class="plane-svg" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
     </div>
-  </section>
+  </div>
 
-  <!-- Section 2: Poll -->
-  <section class="section" id="s-poll">
-    <div class="s-head">
-      <span class="room-pill" id="room-pill2">----</span>
-      <span class="s-title">アンケート</span>
-    </div>
+  <!-- Poll Panel -->
+  <div class="panel" id="panel-poll">
     <div class="poll-body">
       <div>
         <div class="poll-sect-label">回答する（1〜10）</div>
-        <div class="vote-grid">
-          <button class="v-btn" data-v="1">1</button>
-          <button class="v-btn" data-v="2">2</button>
-          <button class="v-btn" data-v="3">3</button>
-          <button class="v-btn" data-v="4">4</button>
-          <button class="v-btn" data-v="5">5</button>
-          <button class="v-btn" data-v="6">6</button>
-          <button class="v-btn" data-v="7">7</button>
-          <button class="v-btn" data-v="8">8</button>
-          <button class="v-btn" data-v="9">9</button>
-          <button class="v-btn" data-v="10">10</button>
-        </div>
+        <div class="vote-grid" id="vote-grid"></div>
       </div>
       <div>
         <div class="poll-sect-label">みんなの回答</div>
@@ -197,14 +185,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
         <div class="result-total" id="result-total">回答 0 件</div>
       </div>
     </div>
-  </section>
+  </div>
 
-</div>
-
-<!-- Dot nav -->
-<div id="dot-nav">
-  <div class="d on"></div>
-  <div class="d"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -223,274 +205,247 @@ const firebaseConfig = {
   appId:             "YOUR_APP_ID"
 };
 /* ================================================================ */
+   ★ 固定ルーム名（teacher.html と同じ値にしてください）
+   ================================================================ */
+const ROOM = "MYCLASS";
+/* ================================================================ */
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-// 匿名ID
 const ANIMALS = ['ネコ','イヌ','パンダ','キツネ','ウサギ','タヌキ','クマ','トリ','カエル','ゾウ','ライオン','コアラ','ペンギン','ハムスター','サル','クジラ'];
 const COLORS   = ['#4F46E5','#0891B2','#059669','#D97706','#DC2626','#7C3AED','#DB2777','#065F46'];
 const myName   = ANIMALS[Math.floor(Math.random()*ANIMALS.length)];
 const myColor  = COLORS[Math.floor(Math.random()*COLORS.length)];
 const myId     = Math.random().toString(36).slice(2,9);
-let roomCode   = null;
 let pollVotes  = {};
 let emojiCount = 0;
+let cooldownTimer = null;
 
 const $ = id => document.getElementById(id);
 
-// ---- Poll chart init ----
+// ---- Build poll UI ----
 (function(){
-  const rows = $('result-rows');
+  const vg = $('vote-grid'), rr = $('result-rows');
   for(let i=1;i<=10;i++){
-    rows.innerHTML += `<div class="r-row"><span class="r-num">${i}</span><div class="r-track"><div class="r-fill" id="rf${i}"></div></div><span class="r-count" id="rc${i}">0</span></div>`;
+    vg.innerHTML += `<button class="v-btn" data-v="${i}">${i}</button>`;
+    rr.innerHTML += `<div class="r-row"><span class="r-num">${i}</span><div class="r-track"><div class="r-fill" id="rf${i}"></div></div><span class="r-count" id="rc${i}">0</span></div>`;
   }
 })();
 
-// ---- Join ----
-$('code-input').addEventListener('input', e => { e.target.value = e.target.value.toUpperCase(); });
-$('join-btn').addEventListener('click', joinRoom);
-$('code-input').addEventListener('keydown', e => { if(e.key==='Enter') joinRoom(); });
+// ---- Tabs ----
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    $('panel-'+tab.dataset.tab).classList.add('active');
+  });
+});
 
-async function joinRoom() {
-  const code = $('code-input').value.trim().toUpperCase();
-  if (!code) return;
-  $('join-btn').textContent = '確認中…';
-  const snap = await db.ref(`classrooms/${code}/settings`).get();
-  if (!snap.exists()) {
-    $('join-error').style.display = 'block';
-    $('join-btn').textContent = '参加する';
-    return;
-  }
-  roomCode = code;
-  const subj = snap.val().subject || '授業チャット';
-  $('room-pill').textContent  = code;
-  $('room-pill2').textContent = code;
-  $('s-title').textContent    = subj;
-  $('join').style.display     = 'none';
-  $('app').style.display      = 'block';
-  $('dot-nav').style.display  = 'flex';
-  checkCooldown();
-  startListening();
-}
+// ---- Start ----
+db.ref(`classrooms/${ROOM}/settings`).once('value', snap => {
+  const subj = snap.val()?.subject || '授業チャット';
+  $('s-title').textContent = subj;
+});
+checkCooldown();
+startListening();
 
 // ---- Listeners ----
 function startListening() {
   const t0 = Date.now();
   let ready = false;
-  setTimeout(() => ready = true, 400);
+  setTimeout(()=>ready=true, 400);
 
-  // Regular messages
-  db.ref(`classrooms/${roomCode}/messages`)
+  db.ref(`classrooms/${ROOM}/messages`)
     .orderByChild('timestamp').startAt(t0)
-    .on('child_added', snap => { if(ready) renderMsg(snap.val()); });
+    .on('child_added', snap=>{ if(ready) renderMsg(snap.val()); });
 
-  // Red spas
-  db.ref(`classrooms/${roomCode}/redspas`)
+  db.ref(`classrooms/${ROOM}/redspas`)
     .orderByChild('timestamp').startAt(t0)
-    .on('child_added', snap => { if(ready) showRedspa(snap.val()); });
+    .on('child_added', snap=>{ if(ready) showRedspa(snap.val()); });
 
-  // Emoji animations
-  db.ref(`classrooms/${roomCode}/emojis`)
+  db.ref(`classrooms/${ROOM}/emojis`)
     .orderByChild('timestamp').startAt(t0)
-    .on('child_added', snap => { if(ready) spawnEmoji(snap.val().emoji); });
+    .on('child_added', snap=>{ if(ready) spawnEmoji(snap.val().emoji); });
 
-  // Poll votes
-  db.ref(`classrooms/${roomCode}/pollVotes`).on('value', snap => {
-    pollVotes = {};
-    snap.forEach(c => { const v = c.val().value; if(v>=1&&v<=10) pollVotes[v]=(pollVotes[v]||0)+1; });
+  db.ref(`classrooms/${ROOM}/pollVotes`).on('value', snap=>{
+    pollVotes={};
+    snap.forEach(c=>{ const v=c.val().value; if(v>=1&&v<=10) pollVotes[v]=(pollVotes[v]||0)+1; });
     updatePollChart();
+  });
+
+  // Global clear signal
+  db.ref(`classrooms/${ROOM}/clearSignal`).on('value', snap=>{
+    if(!snap.val()) return;
+    clearChatDisplay();
   });
 }
 
 // ---- Render message ----
 const msgsEl = $('msgs');
 function renderMsg(msg) {
-  $('msgs-empty').style.display = 'none';
-  const isMine = msg.studentId === myId;
+  $('msgs-empty').style.display='none';
+  const isMine = msg.studentId===myId;
   const wrap = document.createElement('div');
-  wrap.className = 'msg' + (isMine?' mine':'');
+  wrap.className = 'msg'+(isMine?' mine':'');
   const name = document.createElement('div');
-  name.className = 'msg-name';
-  name.style.color = msg.color || '#64748B';
-  name.textContent = isMine ? '自分' : msg.name;
+  name.className='msg-name';
+  name.style.color=msg.color||'#64748B';
+  name.textContent=isMine?'自分':msg.name;
   wrap.appendChild(name);
-  const bubble = document.createElement('div');
-  bubble.className = 'msg-bubble';
-  bubble.textContent = msg.text;
-  if(!isMine) bubble.style.borderLeft = `3px solid ${msg.color||'#CBD5E1'}`;
+  const bubble=document.createElement('div');
+  bubble.className='msg-bubble';
+  bubble.textContent=msg.text;
+  if(!isMine) bubble.style.borderLeft=`3px solid ${msg.color||'#CBD5E1'}`;
   wrap.appendChild(bubble);
   msgsEl.appendChild(wrap);
-  msgsEl.scrollTop = msgsEl.scrollHeight;
-  const all = msgsEl.querySelectorAll('.msg');
-  while(all.length > 50) { const f=msgsEl.querySelector('.msg'); if(f) f.remove(); }
+  msgsEl.scrollTop=msgsEl.scrollHeight;
+  const all=msgsEl.querySelectorAll('.msg');
+  while(all.length>50){ const f=msgsEl.querySelector('.msg'); if(f) f.remove(); }
+}
+
+function clearChatDisplay() {
+  msgsEl.querySelectorAll('.msg').forEach(m=>m.remove());
+  $('msgs-empty').style.display='block';
+  // Also clear redspa zone
+  while(redspas.length) evictOldestRedspa();
 }
 
 function push(data) {
-  if(!roomCode) return;
-  db.ref(`classrooms/${roomCode}/messages`).push({ ...data, studentId:myId, name:myName, color:myColor, timestamp:Date.now() });
+  db.ref(`classrooms/${ROOM}/messages`).push({...data, studentId:myId, name:myName, color:myColor, timestamp:Date.now()});
 }
 
 // ---- Text send ----
-const sendBtn = $('send-btn'), msgInput = $('msg-input');
+const sendBtn=$('send-btn'), msgInput=$('msg-input');
 sendBtn.addEventListener('click', doSend);
-msgInput.addEventListener('keydown', e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend();} });
-msgInput.addEventListener('input', () => {
-  sendBtn.disabled = !msgInput.value.trim();
+msgInput.addEventListener('keydown', e=>{ if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend();} });
+msgInput.addEventListener('input', ()=>{
+  sendBtn.disabled=!msgInput.value.trim();
   msgInput.style.height='auto';
   msgInput.style.height=Math.min(msgInput.scrollHeight,90)+'px';
 });
 
 function doSend() {
-  const t = msgInput.value.trim();
-  if(!t || !roomCode) return;
-  push({ type:'text', text:t });
+  const t=msgInput.value.trim();
+  if(!t) return;
+  push({type:'text',text:t});
   msgInput.value=''; msgInput.style.height='auto'; sendBtn.disabled=true;
 }
 
 // ---- Emoji reactions ----
-document.querySelector('.react-strip').addEventListener('click', e => {
-  const btn = e.target.closest('.r-btn');
-  if(!btn || !roomCode) return;
-  db.ref(`classrooms/${roomCode}/emojis`).push({ emoji:btn.dataset.e, timestamp:Date.now() });
+document.querySelector('.react-strip').addEventListener('click', e=>{
+  const btn=e.target.closest('.r-btn');
+  if(!btn) return;
+  db.ref(`classrooms/${ROOM}/emojis`).push({emoji:btn.dataset.e, timestamp:Date.now()});
   btn.style.transform='scale(.82)';
-  setTimeout(()=>btn.style.transform='', 180);
+  setTimeout(()=>btn.style.transform='',180);
 });
 
-// ---- Emoji float animation ----
+// ---- Emoji float ----
 function spawnEmoji(emoji) {
-  if(emojiCount >= 10) return;
+  if(emojiCount>=10) return;
   emojiCount++;
-  const overlay = $('emoji-overlay');
-  const el = document.createElement('div');
-  el.className = 'float-emoji';
-  el.textContent = emoji;
-  const x = 10 + Math.random() * 70;
-  const d1 = (Math.random()-.5)*40, d2=(Math.random()-.5)*60, d3=(Math.random()-.5)*30;
+  const overlay=$('emoji-overlay');
+  const el=document.createElement('div');
+  el.className='float-emoji';
+  el.textContent=emoji;
+  const x=10+Math.random()*70;
+  const d1=(Math.random()-.5)*30, d2=(Math.random()-.5)*50, d3=(Math.random()-.5)*25;
   el.style.cssText=`left:${x}%; --d1:${d1}px; --d2:${d2}px; --d3:${d3}px;`;
   overlay.appendChild(el);
-  setTimeout(() => { el.remove(); emojiCount--; }, 2500);
+  setTimeout(()=>{ el.remove(); emojiCount--; }, 2500);
 }
 
 // ---- Red supa ----
-const redspas = []; // { el, timerId }
-const rzone   = $('redspa-zone');
+const redspas=[];
+const rzone=$('redspa-zone');
 
 function showRedspa(msg) {
-  // Max 3: evict oldest if full
-  if(redspas.length >= 3) evictOldestRedspa();
-
-  const card = document.createElement('div');
-  card.className = 'rs-card';
-  card.innerHTML = `<div class="rs-name">${msg.name}</div><div class="rs-text">${escHtml(msg.text)}</div><div class="rs-bar" style="width:100%;transition:width 10s linear;"></div>`;
+  if(redspas.length>=3) evictOldestRedspa();
+  const card=document.createElement('div');
+  card.className='rs-card';
+  card.innerHTML=`<div class="rs-name">${escHtml(msg.name)}</div><div class="rs-text">${escHtml(msg.text)}</div><div class="rs-bar" style="width:100%;transition:width 10s linear;"></div>`;
   rzone.appendChild(card);
-  rzone.style.display = 'block';
-
-  // Start shrink animation
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    const bar = card.querySelector('.rs-bar');
-    if(bar) bar.style.width = '0%';
-  }));
-
-  const tid = setTimeout(() => removeRedspa(card, tid), 10000);
-  redspas.push({ el:card, timerId:tid });
+  rzone.style.display='block';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ const b=card.querySelector('.rs-bar'); if(b) b.style.width='0%'; }));
+  const tid=setTimeout(()=>removeRedspa(card,tid),10000);
+  redspas.push({el:card,timerId:tid});
 }
 
 function evictOldestRedspa() {
-  const oldest = redspas.shift();
+  const oldest=redspas.shift();
   if(!oldest) return;
   clearTimeout(oldest.timerId);
   oldest.el.remove();
-  if(rzone.children.length===0) rzone.style.display='none';
+  if(!rzone.children.length) rzone.style.display='none';
 }
 
-function removeRedspa(card, tid) {
-  const idx = redspas.findIndex(r=>r.timerId===tid);
+function removeRedspa(card,tid) {
+  const idx=redspas.findIndex(r=>r.timerId===tid);
   if(idx>-1) redspas.splice(idx,1);
   card.remove();
-  if(rzone.children.length===0) rzone.style.display='none';
+  if(!rzone.children.length) rzone.style.display='none';
 }
 
 // ---- Red supa button ----
-let cooldownTimer = null;
-
 function checkCooldown() {
-  if(!roomCode) return;
-  db.ref(`classrooms/${roomCode}/redspa_cd/${myId}`).get().then(snap => {
+  db.ref(`classrooms/${ROOM}/redspa_cd/${myId}`).get().then(snap=>{
     if(!snap.exists()) return;
-    const endsAt = snap.val();
-    const remaining = endsAt - Date.now();
-    if(remaining > 0) startCooldownUI(remaining);
+    const remaining=snap.val()-Date.now();
+    if(remaining>0) startCooldownUI(remaining);
   });
 }
 
 function startCooldownUI(ms) {
-  const btn = $('redspa-btn');
+  const btn=$('redspa-btn');
   btn.classList.add('cooling');
+  btn.innerHTML='<span class="cd-text">--:--</span>';
   if(cooldownTimer) clearInterval(cooldownTimer);
-  let remaining = Math.ceil(ms/1000);
-  const update = () => {
-    if(remaining <= 0) {
-      clearInterval(cooldownTimer);
-      btn.classList.remove('cooling');
-      btn.textContent = '🔴';
-      return;
-    }
+  let remaining=Math.ceil(ms/1000);
+  const update=()=>{
+    if(remaining<=0){ clearInterval(cooldownTimer); btn.classList.remove('cooling'); btn.innerHTML='<svg class="plane-svg" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>'; return; }
     const m=Math.floor(remaining/60), s=remaining%60;
-    btn.textContent=`${m}:${String(s).padStart(2,'0')}`;
+    const cd=btn.querySelector('.cd-text');
+    if(cd) cd.textContent=`${m}:${String(s).padStart(2,'0')}`;
     remaining--;
   };
   update();
-  cooldownTimer = setInterval(update, 1000);
+  cooldownTimer=setInterval(update,1000);
 }
 
-$('redspa-btn').addEventListener('click', () => {
-  const btn = $('redspa-btn');
-  if(btn.classList.contains('cooling') || !roomCode) return;
-  const text = msgInput.value.trim();
-  if(!text) { msgInput.focus(); msgInput.placeholder='赤スパの内容を入力…'; return; }
-
-  // Send red supa
-  db.ref(`classrooms/${roomCode}/redspas`).push({ text, name:myName, color:myColor, studentId:myId, timestamp:Date.now() });
-
-  // Set cooldown in Firebase (5 minutes)
-  const endsAt = Date.now() + 5*60*1000;
-  db.ref(`classrooms/${roomCode}/redspa_cd/${myId}`).set(endsAt);
+$('redspa-btn').addEventListener('click',()=>{
+  const btn=$('redspa-btn');
+  if(btn.classList.contains('cooling')) return;
+  const text=msgInput.value.trim();
+  if(!text){ msgInput.focus(); return; }
+  db.ref(`classrooms/${ROOM}/redspas`).push({text,name:myName,color:myColor,studentId:myId,timestamp:Date.now()});
+  const endsAt=Date.now()+5*60*1000;
+  db.ref(`classrooms/${ROOM}/redspa_cd/${myId}`).set(endsAt);
   startCooldownUI(5*60*1000);
-
   msgInput.value=''; msgInput.style.height='auto'; sendBtn.disabled=true;
 });
 
 // ---- Poll vote ----
-document.querySelector('.vote-grid').addEventListener('click', e => {
-  const btn = e.target.closest('.v-btn');
-  if(!btn || !roomCode) return;
-  const v = parseInt(btn.dataset.v);
-  db.ref(`classrooms/${roomCode}/pollVotes/${myId}`).set({ value:v, timestamp:Date.now() });
+$('vote-grid').addEventListener('click', e=>{
+  const btn=e.target.closest('.v-btn');
+  if(!btn) return;
+  const v=parseInt(btn.dataset.v);
+  db.ref(`classrooms/${ROOM}/pollVotes/${myId}`).set({value:v,timestamp:Date.now()});
   document.querySelectorAll('.v-btn').forEach(b=>b.classList.remove('voted'));
   btn.classList.add('voted');
 });
 
 // ---- Poll chart ----
 function updatePollChart() {
-  const total = Object.values(pollVotes).reduce((a,b)=>a+b,0);
+  const total=Object.values(pollVotes).reduce((a,b)=>a+b,0);
   for(let i=1;i<=10;i++){
-    const pct = total>0 ? Math.round((pollVotes[i]||0)/total*100) : 0;
-    $(`rf${i}`).style.width = pct+'%';
-    $(`rc${i}`).textContent  = pollVotes[i]||0;
+    const pct=total>0?Math.round((pollVotes[i]||0)/total*100):0;
+    $(`rf${i}`).style.width=pct+'%';
+    $(`rc${i}`).textContent=pollVotes[i]||0;
   }
-  $('result-total').textContent = `回答 ${total} 件`;
+  $('result-total').textContent=`回答 ${total} 件`;
 }
-
-// ---- Dot nav ----
-const appEl = $('app');
-appEl.addEventListener('scroll', () => {
-  const idx = Math.round(appEl.scrollTop/window.innerHeight);
-  document.querySelectorAll('#dot-nav .d').forEach((d,i)=>d.classList.toggle('on',i===idx));
-},{passive:true});
-document.querySelectorAll('#dot-nav .d').forEach((d,i) => {
-  d.addEventListener('click', ()=>appEl.scrollTo({top:i*window.innerHeight,behavior:'smooth'}));
-});
 
 function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
