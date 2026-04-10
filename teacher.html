@@ -36,6 +36,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 .room-pill { font-size:.7rem; font-weight:800; letter-spacing:.06rem; padding:.2rem .65rem; border-radius:100px; background:var(--tea-bg); color:var(--tea); }
 .teacher-badge { font-size:.68rem; font-weight:700; padding:.15rem .55rem; border-radius:100px; background:var(--tea); color:white; flex-shrink:0; }
 .s-title { font-size:.9rem; font-weight:600; flex:1; }
+.live-badge { font-size:.68rem; font-weight:700; padding:.15rem .6rem; border-radius:100px; background:#DCFCE7; color:#166534; flex-shrink:0; }
 
 .tabs { display:flex; }
 .tab { flex:1; padding:.55rem 0; text-align:center; font-size:.82rem; font-weight:700; color:var(--muted); border-bottom:2.5px solid transparent; cursor:pointer; user-select:none; transition:color .15s, border-color .15s; }
@@ -58,17 +59,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 
 .msg { display:flex; flex-direction:column; animation:fadeUp .28s ease; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
-.msg.mine  { align-items:flex-end; }
 .msg.other { align-items:flex-start; }
-
-.msg-bubble {
-  max-width:85%;
-  padding:.55rem .85rem;
-  border-radius:16px;
-  font-size:.93rem;
-  line-height:1.5;
-  word-break:break-word;
-}
+.msg-bubble { max-width:85%; padding:.55rem .85rem; border-radius:16px; font-size:.93rem; line-height:1.5; word-break:break-word; }
 
 #emoji-overlay { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:10; }
 .float-emoji { position:absolute; bottom:10%; font-size:1.8rem; pointer-events:none; line-height:1; animation:floatUp 2.5s ease-out forwards; }
@@ -108,6 +100,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
       <span class="room-pill">授業中</span>
       <span class="teacher-badge">先生</span>
       <span class="s-title" id="s-title">チャット</span>
+      <span class="live-badge">● LIVE</span>
     </div>
     <div class="tabs">
       <div class="tab active" data-tab="chat">💬 チャット</div>
@@ -182,10 +175,18 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// ---- 起動 ----
+// ---- 起動・開室 ----
 $('loading').style.display = 'none';
 $('app').style.display     = 'flex';
-startListening();
+
+const activeRef = db.ref(`classrooms/${ROOM}/active`);
+
+// 先生が接続したら active = true をセット
+// ブラウザを閉じたり通信が切れたら自動でnullになる（onDisconnect）
+activeRef.onDisconnect().remove();
+activeRef.set(true);
+
+// 設定読み込み・初回書き込み
 db.ref(`classrooms/${ROOM}/settings`).get().then(snap => {
   if (!snap.exists()) {
     db.ref(`classrooms/${ROOM}/settings`).set({ subject: '授業チャット', createdAt: Date.now() });
@@ -193,6 +194,8 @@ db.ref(`classrooms/${ROOM}/settings`).get().then(snap => {
     $('s-title').textContent = snap.val().subject;
   }
 }).catch(() => {});
+
+startListening();
 
 // ---- Listeners ----
 function startListening() {
