@@ -201,9 +201,8 @@ $('app').style.display     = 'flex';
 
 const activeRef = db.ref(`classrooms/${ROOM}/active`);
 
-// 先生が接続したら active = true をセット
-// ブラウザを閉じたり通信が切れたら自動でnullになる（onDisconnect）
-activeRef.onDisconnect().remove();
+// 先生が開くたびに active = true をセット
+// 終了は授業終了ボタンのみ（リロードで閉室にならない）
 activeRef.set(true);
 
 // 設定読み込み・初回書き込み
@@ -354,9 +353,8 @@ $('clear-poll').addEventListener('click', () => {
 // ---- 授業終了（全データ削除） ----
 $('end-btn').addEventListener('click', () => {
   if (!confirm('授業を終了しますか？\nチャット・アンケート・すべてのデータが削除されます。')) return;
-  const ref = db.ref(`classrooms/${ROOM}`);
-  ref.remove().then(() => {
-    alert('授業を終了しました。データをすべて削除しました。');
+  db.ref(`classrooms/${ROOM}`).remove().then(() => {
+    alert('授業を終了しました。データをすべて削除しました。\n次の授業はページをリロードして開始してください。');
   }).catch(() => {
     alert('削除に失敗しました。もう一度お試しください。');
   });
