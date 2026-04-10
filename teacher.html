@@ -364,24 +364,25 @@ $('end-btn').addEventListener('click', () => {
 // ---- Q&A ----
 function renderQaList(snap) {
   const qaBody = document.querySelector('#panel-qa .qa-body');
-  while (qaBody.firstChild) qaBody.removeChild(qaBody.firstChild);
+  if (!qaBody) return;
+  qaBody.innerHTML = '';
   const items = [];
   snap.forEach(c => items.push({ key: c.key, ...c.val() }));
   items.reverse();
   if (items.length === 0) {
-    const d = document.createElement('div');
-    d.className = 'qa-empty'; d.textContent = 'まだ質問はありません';
-    qaBody.appendChild(d); return;
+    qaBody.innerHTML = '<div class="qa-empty">まだ質問はありません</div>';
+    return;
   }
   items.forEach(item => {
     const card = document.createElement('div');
     card.className = 'qa-card' + (item.answered ? ' answered' : '');
-    card.style.borderLeft = `4px solid ${item.color || '#CBD5E1'}`;
+    card.style.borderLeft = '4px solid ' + (item.color || '#CBD5E1');
     const cb = document.createElement('input');
     cb.type = 'checkbox'; cb.className = 'qa-check';
     cb.checked = !!item.answered;
+    const itemKey = item.key;
     cb.addEventListener('change', () => {
-      db.ref(`classrooms/${ROOM}/qa/${item.key}/answered`).set(cb.checked);
+      db.ref(`classrooms/${ROOM}/qa/${itemKey}/answered`).set(cb.checked);
     });
     card.appendChild(cb);
     const body = document.createElement('div');
