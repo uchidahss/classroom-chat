@@ -330,6 +330,7 @@ function launchApp() {
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', () => {
       $('app').style.height = window.visualViewport.height + 'px';
+      window.scrollTo(0, 0);
     });
   }
 }
