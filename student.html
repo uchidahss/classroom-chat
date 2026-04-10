@@ -129,6 +129,24 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 .r-fill { height:100%; background:var(--primary); border-radius:6px; transition:width .5s ease; width:0%; }
 .r-count { font-size:.78rem; color:var(--muted); width:26px; text-align:right; flex-shrink:0; }
 .result-total { font-size:.75rem; color:var(--muted); text-align:right; margin-top:.2rem; }
+
+#panel-qa { background:var(--bg); }
+.qa-body { flex:1; overflow-y:auto; padding:1rem .875rem; display:flex; flex-direction:column; gap:.875rem; }
+.qa-input-wrap { display:flex; flex-direction:column; gap:.5rem; }
+#qa-input { width:100%; padding:.75rem .9rem; border:1.5px solid var(--border); border-radius:var(--radius); font-size:.93rem; font-family:inherit; outline:none; resize:none; max-height:100px; line-height:1.5; background:var(--surface); transition:border-color .2s; }
+#qa-input:focus { border-color:var(--primary); background:var(--surface); }
+#qa-input:disabled { opacity:.5; cursor:not-allowed; }
+#qa-send { width:100%; padding:.7rem; background:var(--primary); color:white; border:none; border-radius:var(--radius); font-size:.9rem; font-weight:700; cursor:pointer; }
+#qa-send:disabled { opacity:.35; pointer-events:none; }
+#qa-send:active { opacity:.85; }
+.qa-list { display:flex; flex-direction:column; gap:.625rem; }
+.qa-card { background:var(--surface); border-radius:var(--radius); padding:.75rem 1rem; border:1px solid var(--border); position:relative; animation:fadeUp .28s ease; }
+.qa-card.answered { opacity:.45; }
+.qa-card-name { font-size:.67rem; font-weight:700; margin-bottom:.3rem; }
+.qa-card-text { font-size:.93rem; line-height:1.5; word-break:break-word; color:var(--text); }
+.qa-card-del { position:absolute; top:.6rem; right:.75rem; background:none; border:none; cursor:pointer; font-size:.85rem; color:var(--muted); padding:2px 4px; border-radius:4px; }
+.qa-card-del:active { color:var(--red); }
+.qa-empty { text-align:center; color:var(--muted); font-size:.85rem; padding:2rem 0; }
 </style>
 </head>
 <body>
@@ -162,6 +180,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
     <div class="tabs">
       <div class="tab active" data-tab="chat">💬 チャット</div>
       <div class="tab"        data-tab="poll">📊 アンケート</div>
+      <div class="tab"        data-tab="qa">❓ Q&amp;A</div>
     </div>
   </div>
 
@@ -204,6 +223,18 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
         <div class="poll-sect-label">みんなの回答</div>
         <div class="result-rows" id="result-rows"></div>
         <div class="result-total" id="result-total">回答 0 件</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-qa">
+    <div class="qa-body">
+      <div class="qa-input-wrap">
+        <textarea id="qa-input" placeholder="質問を入力してください…" rows="2"></textarea>
+        <button id="qa-send" disabled>質問を投稿する</button>
+      </div>
+      <div class="qa-list" id="qa-list">
+        <div class="qa-empty" id="qa-empty">まだ質問はありません</div>
       </div>
     </div>
   </div>
@@ -306,6 +337,8 @@ function setActive(isActive) {
     if (!redB.classList.contains('cooling')) redB.disabled = false;
     document.querySelectorAll('.r-btn').forEach(b => b.disabled = false);
     document.querySelectorAll('.v-btn').forEach(b => b.disabled = false);
+    $('qa-input').disabled = false;
+    updateQaSendBtn();
   } else {
     dot.classList.remove('live');
     banner.style.display = 'block';
@@ -314,6 +347,8 @@ function setActive(isActive) {
     redB.disabled  = true;
     document.querySelectorAll('.r-btn').forEach(b => b.disabled = true);
     document.querySelectorAll('.v-btn').forEach(b => b.disabled = true);
+    $('qa-input').disabled = true;
+    $('qa-send').disabled = true;
   }
 }
 
@@ -349,6 +384,10 @@ function startListening() {
   db.ref(`classrooms/${ROOM}/clearSignal`).on('value', snap => {
     if (!snap.val()) return;
     clearChatDisplay();
+  });
+
+  db.ref(`classrooms/${ROOM}/qa`).on('value', snap => {
+    renderQaList(snap);
   });
 }
 
@@ -529,6 +568,69 @@ function updatePollChart() {
     $(`rc${i}`).textContent = pollVotes[i] || 0;
   }
   $('result-total').textContent = `回答 ${total} 件`;
+}
+
+// ---- Q&A ----
+const qaInput = $('qa-input');
+const qaList  = $('qa-list');
+
+function updateQaSendBtn() {
+  $('qa-send').disabled = !qaInput.value.trim() || !classActive;
+}
+qaInput.addEventListener('input', updateQaSendBtn);
+
+$('qa-send').addEventListener('click', () => {
+  const text = qaInput.value.trim();
+  if (!text || !classActive) return;
+  db.ref(`classrooms/${ROOM}/qa`).push({
+    text, name: myName, color: myColor, studentId: myId,
+    answered: false, timestamp: Date.now()
+  });
+  qaInput.value = '';
+  updateQaSendBtn();
+});
+
+function renderQaList(snap) {
+  const empty = $('qa-empty');
+  while (qaList.firstChild) qaList.removeChild(qaList.firstChild);
+  const items = [];
+  snap.forEach(c => items.push({ key: c.key, ...c.val() }));
+  items.reverse();
+  if (items.length === 0) {
+    qaList.appendChild(empty || (() => {
+      const d = document.createElement('div');
+      d.className = 'qa-empty'; d.id = 'qa-empty';
+      d.textContent = 'まだ質問はありません'; return d;
+    })());
+    return;
+  }
+  items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'qa-card' + (item.answered ? ' answered' : '');
+    card.style.borderLeft = `4px solid ${item.color || '#CBD5E1'}`;
+    const nameEl = document.createElement('div');
+    nameEl.className = 'qa-card-name';
+    nameEl.style.color = item.color || '#64748B';
+    nameEl.textContent = item.name || '匿名';
+    card.appendChild(nameEl);
+    const textEl = document.createElement('div');
+    textEl.className = 'qa-card-text';
+    textEl.textContent = item.text;
+    card.appendChild(textEl);
+    if (item.studentId === myId) {
+      const delBtn = document.createElement('button');
+      delBtn.className = 'qa-card-del';
+      delBtn.textContent = '🗑';
+      delBtn.title = '削除';
+      delBtn.addEventListener('click', () => {
+        if (confirm('この質問を削除しますか？')) {
+          db.ref(`classrooms/${ROOM}/qa/${item.key}`).remove();
+        }
+      });
+      card.appendChild(delBtn);
+    }
+    qaList.appendChild(card);
+  });
 }
 
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
