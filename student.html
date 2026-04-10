@@ -326,14 +326,12 @@ function launchApp() {
   db.ref(`classrooms/${ROOM}/settings`).get().then(snap => {
     if (snap.exists() && snap.val().subject) $('s-title').textContent = snap.val().subject;
   }).catch(() => {});
-  // キーボード表示時に画面が飛ばないよう高さを固定
+  // キーボード表示時に入力欄がキーボードのすぐ上に来るよう高さのみ調整
   if (window.visualViewport) {
     const adjustHeight = () => {
       $('app').style.height = window.visualViewport.height + 'px';
-      $('app').style.top    = window.visualViewport.offsetTop + 'px';
     };
     window.visualViewport.addEventListener('resize', adjustHeight);
-    window.visualViewport.addEventListener('scroll', adjustHeight);
     adjustHeight();
   }
 }
