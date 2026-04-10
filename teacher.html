@@ -24,35 +24,36 @@
 html, body { height:100%; overflow:hidden; }
 body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sans-serif; background:var(--surface); color:var(--text); }
 
-/* ===== LAYOUT ===== */
-#app { height:100dvh; display:flex; flex-direction:column; overflow:hidden; }
+#loading { height:100dvh; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:1rem; }
+.spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--tea); border-radius:50%; animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+#loading p { font-size:.9rem; color:var(--muted); }
 
-/* ===== HEADER ===== */
-.app-head { flex-shrink:0; background:var(--surface); border-bottom:1px solid var(--border); padding:0 1rem; display:flex; flex-direction:column; }
+#app { display:none; height:100dvh; flex-direction:column; overflow:hidden; }
+
+.app-head { flex-shrink:0; background:var(--surface); border-bottom:1px solid var(--border); padding:0 1rem; }
 .head-row { height:48px; display:flex; align-items:center; gap:.625rem; }
 .room-pill { font-size:.7rem; font-weight:800; letter-spacing:.06rem; padding:.2rem .65rem; border-radius:100px; background:var(--tea-bg); color:var(--tea); }
 .teacher-badge { font-size:.68rem; font-weight:700; padding:.15rem .55rem; border-radius:100px; background:var(--tea); color:white; flex-shrink:0; }
 .s-title { font-size:.9rem; font-weight:600; flex:1; }
 
-/* ===== TABS ===== */
 .tabs { display:flex; }
-.tab { flex:1; padding:.55rem 0; text-align:center; font-size:.82rem; font-weight:700; color:var(--muted); border-bottom:2.5px solid transparent; cursor:pointer; transition:all .15s; user-select:none; }
+.tab { flex:1; padding:.55rem 0; text-align:center; font-size:.82rem; font-weight:700; color:var(--muted); border-bottom:2.5px solid transparent; cursor:pointer; user-select:none; transition:color .15s, border-color .15s; }
 .tab.active { color:var(--tea); border-bottom-color:var(--tea); }
 
-/* ===== PANELS ===== */
 .panel { flex:1; display:none; flex-direction:column; overflow:hidden; }
 .panel.active { display:flex; }
 
-/* ===== REDSPA ZONE ===== */
+/* Redspa */
 #redspa-zone { flex-shrink:0; background:var(--red-bg); border-bottom:1px solid var(--red-border); display:none; }
 .rs-card { padding:6px 12px 8px; border-bottom:1px solid var(--red-border); position:relative; overflow:hidden; }
 .rs-card:last-child { border-bottom:none; }
 .rs-name { font-size:.65rem; font-weight:800; color:#BE123C; margin-bottom:2px; display:flex; align-items:center; gap:4px; }
 .rs-name::before { content:'🔴'; font-size:.7rem; }
 .rs-text { font-size:.9rem; color:var(--text); line-height:1.4; word-break:break-word; }
-.rs-bar { position:absolute; bottom:0; left:0; height:3px; background:var(--red); border-radius:0 2px 2px 0; }
+.rs-bar { position:absolute; bottom:0; left:0; height:3px; background:var(--red); }
 
-/* ===== CHAT ===== */
+/* Chat */
 #chat-wrap { flex:1; position:relative; overflow:hidden; }
 #msgs { height:100%; overflow-y:auto; padding:.875rem .875rem .5rem; display:flex; flex-direction:column; gap:.55rem; scroll-behavior:smooth; }
 #msgs-empty { margin:auto; text-align:center; color:var(--muted); font-size:.85rem; line-height:2; }
@@ -61,7 +62,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 .msg-name { font-size:.66rem; font-weight:700; margin-bottom:.2rem; padding:0 .35rem; color:var(--muted); }
 .msg-bubble { max-width:85%; padding:.55rem .85rem; border-radius:16px 16px 16px 4px; background:var(--bg); font-size:.93rem; line-height:1.5; word-break:break-word; }
 
-/* Emoji float overlay */
+/* Emoji float */
 #emoji-overlay { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:10; }
 .float-emoji { position:absolute; bottom:10%; font-size:1.8rem; pointer-events:none; line-height:1; animation:floatUp 2.5s ease-out forwards; }
 @keyframes floatUp {
@@ -71,35 +72,34 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
   100% { opacity:0;   transform:translateY(-44vh) translateX(var(--d3)); }
 }
 
-/* ===== CLEAR BAR (teacher only) ===== */
-.clear-bar { flex-shrink:0; padding:.6rem .875rem .75rem; display:flex; border-top:1px solid var(--border); background:var(--surface); }
-#clear-btn {
-  flex:1; padding:.65rem;
-  border:1.5px solid #CBD5E1; border-radius:var(--radius);
-  background:var(--bg); color:var(--muted);
-  font-size:.9rem; font-weight:600; cursor:pointer;
-  transition:all .15s;
-}
+/* Clear bar */
+.clear-bar { flex-shrink:0; padding:.6rem .875rem .75rem; border-top:1px solid var(--border); background:var(--surface); }
+#clear-btn { width:100%; padding:.65rem; border:1.5px solid var(--border); border-radius:var(--radius); background:var(--bg); color:var(--muted); font-size:.9rem; font-weight:600; cursor:pointer; }
 #clear-btn:active { background:#FEE2E2; border-color:var(--red); color:var(--red); }
 
-/* ===== POLL PANEL ===== */
-.poll-body { flex:1; overflow-y:auto; padding:1rem .875rem; display:flex; flex-direction:column; gap:1rem; background:var(--bg); }
+/* Poll */
+#panel-poll { background:var(--bg); }
+.poll-body { flex:1; overflow-y:auto; padding:1rem .875rem; display:flex; flex-direction:column; gap:1rem; }
 .poll-sect-label { font-size:.72rem; font-weight:700; color:var(--muted); margin-bottom:.5rem; }
-.result-rows { display:flex; flex-direction:column; gap:.55rem; }
+.result-rows { display:flex; flex-direction:column; gap:.5rem; }
 .r-row { display:flex; align-items:center; gap:.6rem; }
 .r-num { font-size:.85rem; font-weight:800; color:var(--text); width:20px; text-align:right; flex-shrink:0; }
 .r-track { flex:1; height:28px; background:var(--border); border-radius:6px; overflow:hidden; }
 .r-fill { height:100%; background:var(--primary); border-radius:6px; transition:width .5s ease; width:0%; }
 .r-count { font-size:.78rem; color:var(--muted); width:26px; text-align:right; flex-shrink:0; }
 .result-total { font-size:.75rem; color:var(--muted); text-align:right; margin-top:.2rem; }
-#clear-poll { width:100%; padding:.65rem; border:1.5px solid var(--red); border-radius:var(--radius); background:none; color:var(--red); font-size:.85rem; font-weight:600; cursor:pointer; margin-top:.25rem; }
+#clear-poll { width:100%; padding:.65rem; border:1.5px solid var(--red); border-radius:var(--radius); background:none; color:var(--red); font-size:.85rem; font-weight:600; cursor:pointer; }
 #clear-poll:active { background:#FEF2F2; }
 </style>
 </head>
 <body>
-<div id="app">
 
-  <!-- Header + Tabs -->
+<div id="loading">
+  <div class="spinner"></div>
+  <p>接続中…</p>
+</div>
+
+<div id="app">
   <div class="app-head">
     <div class="head-row">
       <span class="room-pill">授業中</span>
@@ -112,20 +112,17 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
     </div>
   </div>
 
-  <!-- Chat Panel -->
   <div class="panel active" id="panel-chat">
     <div id="redspa-zone"></div>
     <div id="chat-wrap">
       <div id="msgs"><div id="msgs-empty">学生からのメッセージがここに表示されます</div></div>
       <div id="emoji-overlay"></div>
     </div>
-    <!-- Clear bar (teacher only) -->
     <div class="clear-bar">
       <button id="clear-btn">🗑 全員のチャットをクリア</button>
     </div>
   </div>
 
-  <!-- Poll Panel -->
   <div class="panel" id="panel-poll">
     <div class="poll-body">
       <div>
@@ -136,33 +133,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
       <button id="clear-poll">🗑 アンケート結果をリセット</button>
     </div>
   </div>
-
 </div>
-
-<script>
-// ---- Tabs (Firebase不要・即時実行) ----
-function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(function(t) {
-    t.classList.toggle('active', t.dataset.tab === name);
-  });
-  document.querySelectorAll('.panel').forEach(function(p) {
-    p.classList.toggle('active', p.id === 'panel-' + name);
-  });
-}
-document.addEventListener('DOMContentLoaded', function() {
-  // タブ
-  document.querySelectorAll('.tab').forEach(function(tab) {
-    tab.addEventListener('click', function() { switchTab(tab.dataset.tab); });
-  });
-  switchTab('chat');
-
-  // アンケートグラフUI生成（Firebase不要）
-  var rr = document.getElementById('result-rows');
-  for (var i = 1; i <= 10; i++) {
-    rr.innerHTML += '<div class="r-row"><span class="r-num">'+i+'</span><div class="r-track"><div class="r-fill" id="rf'+i+'"></div></div><span class="r-count" id="rc'+i+'">0</span></div>';
-  }
-});
-</script>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
@@ -180,7 +151,7 @@ const firebaseConfig = {
   appId:             "YOUR_APP_ID"
 };
 /* ================================================================ */
-   ★ 固定ルーム名（student.html と同じ値にしてください）
+   ★ ルーム名（student.html と同じ値にすること）
    ================================================================ */
 const ROOM = "MYCLASS";
 /* ================================================================ */
@@ -190,144 +161,165 @@ const db = firebase.database();
 
 let pollVotes  = {};
 let emojiCount = 0;
+const redspas  = [];
 
-const $ = id => document.getElementById(id);
+const $     = id => document.getElementById(id);
+const msgsEl = $('msgs');
+const rzone  = $('redspa-zone');
+const shownIds = new Set();
 
-// ---- Init room settings ----
-db.ref(`classrooms/${ROOM}/settings`).once('value', snap=>{
-  const subj=snap.val()?.subject||'授業チャット';
-  $('s-title').textContent=subj;
+// ---- Build poll chart rows ----
+const rr = $('result-rows');
+for (let i = 1; i <= 10; i++) {
+  rr.insertAdjacentHTML('beforeend',
+    `<div class="r-row"><span class="r-num">${i}</span><div class="r-track"><div class="r-fill" id="rf${i}"></div></div><span class="r-count" id="rc${i}">0</span></div>`);
+}
+
+// ---- Tabs ----
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    $('panel-' + tab.dataset.tab).classList.add('active');
+  });
 });
 
-// ---- Start listening ----
-startListening();
+// ---- Auto-start ----
+(async function init() {
+  // ルームが存在しなければ作成
+  const snap = await db.ref(`classrooms/${ROOM}/settings`).get();
+  if (!snap.exists()) {
+    await db.ref(`classrooms/${ROOM}/settings`).set({ subject: '授業チャット', createdAt: Date.now() });
+  }
+  $('s-title').textContent = snap.exists() ? (snap.val().subject || '授業チャット') : '授業チャット';
+  $('loading').style.display = 'none';
+  $('app').style.display     = 'flex';
+  startListening();
+})();
 
+// ---- Listeners ----
 function startListening() {
-  const t0=Date.now();
-  let ready=false;
-  setTimeout(()=>ready=true,400);
+  const t0 = Date.now();
+  let ready = false;
+  setTimeout(() => ready = true, 400);
 
   db.ref(`classrooms/${ROOM}/messages`)
     .orderByChild('timestamp').startAt(t0)
-    .on('child_added', snap=>{ if(ready) renderMsg(snap.val(),snap.key); });
+    .on('child_added', snap => { if (ready) renderMsg(snap.val(), snap.key); });
 
   db.ref(`classrooms/${ROOM}/redspas`)
     .orderByChild('timestamp').startAt(t0)
-    .on('child_added', snap=>{ if(ready) showRedspa(snap.val()); });
+    .on('child_added', snap => { if (ready) showRedspa(snap.val()); });
 
   db.ref(`classrooms/${ROOM}/emojis`)
     .orderByChild('timestamp').startAt(t0)
-    .on('child_added', snap=>{ if(ready) spawnEmoji(snap.val().emoji); });
+    .on('child_added', snap => { if (ready) spawnEmoji(snap.val().emoji); });
 
-  db.ref(`classrooms/${ROOM}/pollVotes`).on('value', snap=>{
-    pollVotes={};
-    snap.forEach(c=>{ const v=c.val().value; if(v>=1&&v<=10) pollVotes[v]=(pollVotes[v]||0)+1; });
+  db.ref(`classrooms/${ROOM}/pollVotes`).on('value', snap => {
+    pollVotes = {};
+    snap.forEach(c => { const v = c.val().value; if (v >= 1 && v <= 10) pollVotes[v] = (pollVotes[v] || 0) + 1; });
     updatePollChart();
   });
 }
 
 // ---- Render message ----
-const msgsEl=$('msgs');
-const shownIds=new Set();
-
-function renderMsg(msg,key) {
-  if(shownIds.has(key)) return;
+function renderMsg(msg, key) {
+  if (shownIds.has(key)) return;
   shownIds.add(key);
-  $('msgs-empty').style.display='none';
-  const wrap=document.createElement('div');
-  wrap.className='msg';
-  const name=document.createElement('div');
-  name.className='msg-name';
-  name.style.color=msg.color||'#64748B';
-  name.textContent=msg.name||'匿名';
+  $('msgs-empty').style.display = 'none';
+  const wrap = document.createElement('div');
+  wrap.className = 'msg';
+  const name = document.createElement('div');
+  name.className = 'msg-name';
+  name.style.color = msg.color || '#64748B';
+  name.textContent = msg.name || '匿名';
   wrap.appendChild(name);
-  const bubble=document.createElement('div');
-  bubble.className='msg-bubble';
-  bubble.textContent=msg.text||'';
-  bubble.style.borderLeft=`3px solid ${msg.color||'#CBD5E1'}`;
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  bubble.textContent = msg.text || '';
+  bubble.style.borderLeft = `3px solid ${msg.color || '#CBD5E1'}`;
   wrap.appendChild(bubble);
   msgsEl.appendChild(wrap);
-  msgsEl.scrollTop=msgsEl.scrollHeight;
-  const all=msgsEl.querySelectorAll('.msg');
-  while(all.length>50){ const f=msgsEl.querySelector('.msg'); if(f) f.remove(); }
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+  const all = msgsEl.querySelectorAll('.msg');
+  while (all.length > 50) { const f = msgsEl.querySelector('.msg'); if (f) f.remove(); }
 }
 
 // ---- Red supa ----
-const redspas=[];
-const rzone=$('redspa-zone');
-
 function showRedspa(msg) {
-  if(redspas.length>=3) evictOldestRedspa();
-  const card=document.createElement('div');
-  card.className='rs-card';
-  card.innerHTML=`<div class="rs-name">${escHtml(msg.name)}</div><div class="rs-text">${escHtml(msg.text)}</div><div class="rs-bar" style="width:100%;transition:width 10s linear;"></div>`;
+  if (redspas.length >= 3) evictOldestRedspa();
+  const card = document.createElement('div');
+  card.className = 'rs-card';
+  card.innerHTML = `<div class="rs-name">${esc(msg.name)}</div><div class="rs-text">${esc(msg.text)}</div><div class="rs-bar" style="width:100%;transition:width 10s linear;"></div>`;
   rzone.appendChild(card);
-  rzone.style.display='block';
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{ const b=card.querySelector('.rs-bar'); if(b) b.style.width='0%'; }));
-  const tid=setTimeout(()=>removeRedspa(card,tid),10000);
-  redspas.push({el:card,timerId:tid});
+  rzone.style.display = 'block';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const b = card.querySelector('.rs-bar'); if (b) b.style.width = '0%';
+  }));
+  const tid = setTimeout(() => removeRedspa(card, tid), 10000);
+  redspas.push({ el: card, timerId: tid });
 }
 
 function evictOldestRedspa() {
-  const oldest=redspas.shift();
-  if(!oldest) return;
-  clearTimeout(oldest.timerId);
-  oldest.el.remove();
-  if(!rzone.children.length) rzone.style.display='none';
+  const o = redspas.shift();
+  if (!o) return;
+  clearTimeout(o.timerId); o.el.remove();
+  if (!rzone.children.length) rzone.style.display = 'none';
 }
 
-function removeRedspa(card,tid) {
-  const idx=redspas.findIndex(r=>r.timerId===tid);
-  if(idx>-1) redspas.splice(idx,1);
+function removeRedspa(card, tid) {
+  const idx = redspas.findIndex(r => r.timerId === tid);
+  if (idx > -1) redspas.splice(idx, 1);
   card.remove();
-  if(!rzone.children.length) rzone.style.display='none';
+  if (!rzone.children.length) rzone.style.display = 'none';
 }
 
 // ---- Emoji float ----
 function spawnEmoji(emoji) {
-  if(emojiCount>=10) return;
+  if (emojiCount >= 10) return;
   emojiCount++;
-  const overlay=$('emoji-overlay');
-  const el=document.createElement('div');
-  el.className='float-emoji';
-  el.textContent=emoji;
-  const x=10+Math.random()*70;
-  const d1=(Math.random()-.5)*30, d2=(Math.random()-.5)*50, d3=(Math.random()-.5)*25;
-  el.style.cssText=`left:${x}%; --d1:${d1}px; --d2:${d2}px; --d3:${d3}px;`;
+  const overlay = $('emoji-overlay');
+  const el = document.createElement('div');
+  el.className = 'float-emoji';
+  el.textContent = emoji;
+  const x  = 10 + Math.random() * 70;
+  const d1 = (Math.random() - .5) * 30;
+  const d2 = (Math.random() - .5) * 50;
+  const d3 = (Math.random() - .5) * 25;
+  el.style.cssText = `left:${x}%; --d1:${d1}px; --d2:${d2}px; --d3:${d3}px;`;
   overlay.appendChild(el);
-  setTimeout(()=>{ el.remove(); emojiCount--; },2500);
+  setTimeout(() => { el.remove(); emojiCount--; }, 2500);
 }
 
 // ---- Poll chart ----
 function updatePollChart() {
-  const total=Object.values(pollVotes).reduce((a,b)=>a+b,0);
-  for(let i=1;i<=10;i++){
-    const pct=total>0?Math.round((pollVotes[i]||0)/total*100):0;
-    $(`rf${i}`).style.width=pct+'%';
-    $(`rc${i}`).textContent=pollVotes[i]||0;
+  const total = Object.values(pollVotes).reduce((a, b) => a + b, 0);
+  for (let i = 1; i <= 10; i++) {
+    const pct = total > 0 ? Math.round((pollVotes[i] || 0) / total * 100) : 0;
+    $(`rf${i}`).style.width = pct + '%';
+    $(`rc${i}`).textContent = pollVotes[i] || 0;
   }
-  $('result-total').textContent=`回答 ${total} 件`;
+  $('result-total').textContent = `回答 ${total} 件`;
 }
 
-// ---- Global clear (all clients) ----
-$('clear-btn').addEventListener('click',()=>{
-  if(!confirm('全員のチャット画面をクリアしますか？')) return;
-  // Write signal with timestamp so repeated presses also trigger
+// ---- Clear chat (all clients) ----
+$('clear-btn').addEventListener('click', () => {
+  if (!confirm('全員のチャット画面をクリアしますか？')) return;
   db.ref(`classrooms/${ROOM}/clearSignal`).set(Date.now());
-  // Also clear own display immediately
-  msgsEl.querySelectorAll('.msg').forEach(m=>m.remove());
+  msgsEl.querySelectorAll('.msg').forEach(m => m.remove());
   shownIds.clear();
-  $('msgs-empty').style.display='block';
-  while(redspas.length) evictOldestRedspa();
+  $('msgs-empty').style.display = 'block';
+  while (redspas.length) evictOldestRedspa();
 });
 
 // ---- Clear poll ----
-$('clear-poll').addEventListener('click',()=>{
-  if(!confirm('アンケート結果をリセットしますか？')) return;
+$('clear-poll').addEventListener('click', () => {
+  if (!confirm('アンケート結果をリセットしますか？')) return;
   db.ref(`classrooms/${ROOM}/pollVotes`).remove();
 });
 
-function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
 </body>
 </html>
