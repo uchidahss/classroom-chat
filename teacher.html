@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>授業チャット — 教員</title>
+  <style>
+    :root {
+      --primary:       #4F46E5;
+      --primary-light: #818CF8;
+      --bg:            #0F172A;
+      --surface:       #1E293B;
+      --surface2:      #334155;
+      --border:        #334155;
+      --text:          #F1F5F9;
+      --text-muted:    #94A3B8;
+      --radius:        14px;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* ========== SETUP SCREEN ========== */
+    #setup-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
+      padding: 2rem;
+    }
+    .setup-logo {
+      width: 80px; height: 80px;
+      background: var(--primary);
+      border-radius: 24px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .setup-logo svg { width: 40px; height: 40px; fill: white; }
+    .setup-heading { text-align: center; }
+    .setup-heading h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .setup-heading p  { font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; }
+    .setup-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      width: 100%; max-width: 400px;
+      display: flex; flex-direction: column; gap: 1.25rem;
+    }
+    .setup-card label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; display: block; margin-bottom: 0.4rem; }
+    .setup-card input, .setup-card select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+    }
+    .setup-card input:focus, .setup-card select:focus { border-color: var(--primary-light); }
+    .code-display {
+      font-size: 2.5rem;
+      font-family: 'SF Mono', 'Menlo', monospace;
+      font-weight: 800;
+      letter-spacing: 0.6rem;
+      text-align: center;
+      color: var(--primary-light);
+    }
+    .gen-btn {
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      font-size: 0.8rem; text-decoration: underline; text-align: center;
+    }
+    .gen-btn:hover { color: var(--text); }
+    .start-btn {
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .start-btn:hover { background: #4338CA; }
+    .start-btn:active { transform: scale(0.98); }
+
+    /* ========== LIVE SCREEN ========== */
+    #live-screen { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+
+    /* Header */
+    .live-header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.25rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-shrink: 0;
+    }
+    .header-code {
+      font-family: 'SF Mono', 'Menlo', monospace;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--primary-light);
+      letter-spacing: 0.15rem;
+    }
+    .header-code-label { font-size: 0.7rem; color: var(--text-muted); margin-right: 0.25rem; }
+    .header-sep { width: 1px; height: 24px; background: var(--border); }
+    .header-subject { font-size: 0.9rem; color: var(--text-muted); flex: 1; }
+    .header-btn {
+      padding: 0.45rem 0.85rem;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .header-btn:hover { background: var(--surface2); color: var(--text); }
+    .header-btn.danger { border-color: #EF4444; color: #EF4444; }
+    .header-btn.danger:hover { background: rgba(239,68,68,0.1); }
+
+    /* Main layout */
+    .live-body {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* Message display area */
+    .msg-display {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      padding: 1.25rem;
+    }
+
+    /* STAY MODE grid */
+    #stay-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-content: flex-start;
+      height: 100%;
+      overflow: hidden;
+    }
+    .stay-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem 0.5rem;
+      border-left: 5px solid #4F46E5;
+      min-width: 200px;
+      max-width: 320px;
+      flex: 1 1 220px;
+      animation: popIn 0.35s cubic-bezier(0.34,1.56,0.64,1);
+      position: relative;
+      overflow: hidden;
+    }
+    @keyframes popIn {
+      from { opacity:0; transform:scale(0.85) translateY(12px); }
+      to   { opacity:1; transform:scale(1)    translateY(0); }
+    }
+    .stay-card.fading {
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      opacity: 0; transform: scale(0.93);
+    }
+    .stay-author { font-size: 0.72rem; font-weight: 800; margin-bottom: 0.4rem; }
+    .stay-text { font-size: 1.15rem; line-height: 1.55; word-break: break-word; }
+    .stay-emoji { font-size: 2rem; }
+    .stay-poll { display: flex; align-items: center; gap: 0.75rem; }
+    .stay-poll-num {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; font-weight: 800;
+    }
+    /* Timer bar at bottom of card */
+    .timer-bar {
+      position: absolute;
+      bottom: 0; left: 0;
+      height: 4px;
+      background: var(--primary);
+      width: 100%;
+      transform-origin: left;
+    }
+
+    /* FLOW MODE ticker */
+    #flow-list {
+      display: none;
+      flex-direction: column;
+      gap: 0.6rem;
+      height: 100%;
+      overflow: hidden;
+    }
+    .flow-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      border-left: 4px solid var(--primary);
+      animation: slideRight 0.4s ease;
+      flex-shrink: 0;
+    }
+    @keyframes slideRight {
+      from { opacity:0; transform:translateX(-18px); }
+      to   { opacity:1; transform:translateX(0); }
+    }
+    .flow-author { font-size: 0.68rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .flow-text { font-size: 1rem; }
+
+    /* ---- Right sidebar ---- */
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sidebar-section { padding: 1rem 1.1rem; border-bottom: 1px solid var(--border); }
+    .sidebar-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.06rem;
+      text-transform: uppercase;
+      margin-bottom: 0.875rem;
+    }
+
+    /* Poll chart */
+    .poll-row-chart {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.55rem;
+    }
+    .poll-label-num { font-size: 0.85rem; font-weight: 800; width: 16px; color: var(--text); }
+    .bar-track { flex: 1; height: 18px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; background: var(--primary); border-radius: 4px; transition: width 0.5s ease; width: 0%; }
+    .poll-count { font-size: 0.75rem; color: var(--text-muted); width: 22px; text-align: right; }
+    .poll-total { font-size: 0.75rem; color: var(--text-muted); text-align: right; margin-top: 0.4rem; }
+
+    /* Reaction counter */
+    .reaction-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.5rem;
+    }
+    .reaction-chip {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 0.4rem 0.25rem;
+      text-align: center;
+    }
+    .reaction-chip .rc-emoji { font-size: 1.2rem; display: block; }
+    .reaction-chip .rc-count { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
+
+    /* Settings panel */
+    .settings-section { padding: 1rem 1.1rem; flex: 1; overflow-y: auto; }
+    .setting-row { margin-bottom: 1rem; }
+    .setting-row label { font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 0.4rem; }
+    .seg-ctrl { display: flex; gap: 4px; }
+    .seg-btn {
+      flex: 1; padding: 0.45rem; font-size: 0.8rem; font-weight: 600;
+      border: 1px solid var(--border); border-radius: 8px;
+      background: var(--bg); color: var(--text-muted); cursor: pointer;
+      transition: all 0.15s;
+    }
+    .seg-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+    .range-wrap { display: flex; align-items: center; gap: 0.6rem; }
+    .range-wrap input[type=range] {
+      flex: 1; accent-color: var(--primary); cursor: pointer;
+    }
+    .range-val {
+      font-size: 0.85rem; font-weight: 700; color: var(--primary-light);
+      min-width: 40px; text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== SETUP SCREEN ===== -->
+<div id="setup-screen">
+  <div class="setup-logo">
+    <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+  </div>
+  <div class="setup-heading">
+    <h1>授業チャット</h1>
+    <p>ルームコードを設定して授業を開始します<br>学生はこのコードで参加できます</p>
+  </div>
+  <div class="setup-card">
+    <div>
+      <label>科目・クラス名（任意）</label>
+      <input type="text" id="subject-input" placeholder="例: デザイン基礎 1年A組">
+    </div>
+    <div>
+      <label>ルームコード</label>
+      <div class="code-display" id="code-display">----</div>
+      <br>
+      <button class="gen-btn" id="regen-btn">↺ 別のコードを生成</button>
+    </div>
+    <button class="start-btn" id="start-btn">授業を開始する →</button>
+  </div>
+</div>
+
+<!-- ===== LIVE SCREEN ===== -->
+<div id="live-screen">
+
+  <div class="live-header">
+    <span>
+      <span class="header-code-label">ルーム</span>
+      <span class="header-code" id="header-code">----</span>
+    </span>
+    <div class="header-sep"></div>
+    <span class="header-subject" id="header-subject">授業チャット</span>
+    <button class="header-btn" id="fullscreen-btn">⛶ 全画面</button>
+    <button class="header-btn danger" id="clear-btn">🗑 メッセージ消去</button>
+  </div>
+
+  <div class="live-body">
+    <!-- Message display -->
+    <div class="msg-display">
+      <div id="stay-grid"></div>
+      <div id="flow-list"></div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Poll results -->
+      <div class="sidebar-section">
+        <div class="sidebar-title">📊 アンケート結果</div>
+        <div id="poll-chart">
+          <div class="poll-row-chart"><span class="poll-label-num">1</span><div class="bar-track"><div class="bar-fill" id="bar1"></div></div><span class="poll-count" id="cnt1">0</span></div>
+          <div class="poll-row-chart"><span class="poll-label-num">2</span><div class="bar-track"><div class="bar-fill" id="bar2"></div></div><span class="poll-count" id="cnt2">0</span></div>
+          <div class="poll-row-chart"><span class="poll-label-num">3</span><div class="bar-track"><div class="bar-fill" id="bar3"></div></div><span class="poll-count" id="cnt3">0</span></div>
+          <div class="poll-row-chart"><span class="poll-label-num">4</span><div class="bar-track"><div class="bar-fill" id="bar4"></div></div><span class="poll-count" id="cnt4">0</span></div>
+          <div class="poll-row-chart"><span class="poll-label-num">5</span><div class="bar-track"><div class="bar-fill" id="bar5"></div></div><span class="poll-count" id="cnt5">0</span></div>
+        </div>
+        <div class="poll-total" id="poll-total">回答 0 件</div>
+      </div>
+
+      <!-- Reactions -->
+      <div class="sidebar-section">
+        <div class="sidebar-title">✋ リアクション集計</div>
+        <div class="reaction-grid" id="reaction-grid">
+          <div class="reaction-chip"><span class="rc-emoji">👍</span><span class="rc-count" data-emoji="👍">0</span></div>
+          <div class="reaction-chip"><span class="rc-emoji">😮</span><span class="rc-count" data-emoji="😮">0</span></div>
+          <div class="reaction-chip"><span class="rc-emoji">🤔</span><span class="rc-count" data-emoji="🤔">0</span></div>
+          <div class="reaction-chip"><span class="rc-emoji">✋</span><span class="rc-count" data-emoji="✋">0</span></div>
+          <div class="reaction-chip"><span class="rc-emoji">😄</span><span class="rc-count" data-emoji="😄">0</span></div>
+          <div class="reaction-chip"><span class="rc-emoji">😅</span><span class="rc-count" data-emoji="😅">0</span></div>
+          <div class="reaction-chip"><span class="rc-emoji">🎉</span><span class="rc-count" data-emoji="🎉">0</span></div>
+          <div class="reaction-chip"><span class="rc-emoji">😴</span><span class="rc-count" data-emoji="😴">0</span></div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="settings-section">
+        <div class="sidebar-title">⚙ 表示設定</div>
+
+        <div class="setting-row">
+          <label>表示モード</label>
+          <div class="seg-ctrl">
+            <button class="seg-btn active" id="mode-stay">とどまる</button>
+            <button class="seg-btn"        id="mode-flow">流れる</button>
+          </div>
+        </div>
+
+        <div class="setting-row" id="duration-row">
+          <label>表示時間（とどまるモード）</label>
+          <div class="range-wrap">
+            <input type="range" id="duration-slider" min="5" max="60" step="5" value="15">
+            <span class="range-val" id="duration-val">15秒</span>
+          </div>
+        </div>
+
+        <div class="setting-row">
+          <label>同時表示カード数（とどまる）</label>
+          <div class="seg-ctrl">
+            <button class="seg-btn active" data-max="6" id="max-btn-6">6枚</button>
+            <button class="seg-btn"        data-max="9" id="max-btn-9">9枚</button>
+            <button class="seg-btn"        data-max="3" id="max-btn-3">3枚</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database-compat.js"></script>
+
+<script>
+/* ================================================================
+   ★ Firebase 設定 — ここを自分のプロジェクト情報に書き換えてください
+   ================================================================ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyDrdXls9DSQdtRTu-7vf882lqM2h7Q37Gc",
+  authDomain:        "classroom-chat-59e41.firebaseapp.com",
+  databaseURL:       "https://classroom-chat-59e41-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+/* ================================================================ */
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ---- State ----
+let roomCode      = null;
+let displayMode   = 'stay';   // 'stay' | 'flow'
+let displayDur    = 15;       // seconds
+let maxCards      = 6;
+let pollCounts    = {1:0, 2:0, 3:0, 4:0, 5:0};
+let reactionCounts = {};
+const stayTimers  = new Map();  // cardId -> timerId
+
+// ---- Room code generation ----
+const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+function genCode() {
+  return Array.from({length:4}, () => CHARS[Math.floor(Math.random()*CHARS.length)]).join('');
+}
+let pendingCode = genCode();
+document.getElementById('code-display').textContent = pendingCode;
+document.getElementById('regen-btn').addEventListener('click', () => {
+  pendingCode = genCode();
+  document.getElementById('code-display').textContent = pendingCode;
+});
+
+// ---- Start room ----
+document.getElementById('start-btn').addEventListener('click', async () => {
+  roomCode = pendingCode;
+  const subject = document.getElementById('subject-input').value.trim() || '授業チャット';
+  await db.ref(`classrooms/${roomCode}/settings`).set({
+    displayMode, displayDuration: displayDur, createdAt: Date.now(), subject
+  });
+  document.getElementById('header-code').textContent = roomCode;
+  document.getElementById('header-subject').textContent = subject;
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('live-screen').style.display = 'flex';
+  startListening();
+});
+
+// ---- Listen for messages ----
+function startListening() {
+  // Only get new messages from now
+  const startTime = Date.now();
+  db.ref(`classrooms/${roomCode}/messages`)
+    .orderByChild('timestamp')
+    .startAt(startTime)
+    .on('child_added', snap => {
+      const msg = snap.val();
+      processMessage(msg, snap.key);
+    });
+}
+
+function processMessage(msg, key) {
+  if (msg.type === 'poll') {
+    updatePoll(msg.value);
+  } else if (msg.type === 'emoji') {
+    updateReaction(msg.emoji);
+  }
+  if (displayMode === 'stay') addStayCard(msg, key);
+  else addFlowItem(msg);
+}
+
+// ---- STAY MODE ----
+const stayGrid = document.getElementById('stay-grid');
+
+function addStayCard(msg, key) {
+  const card = document.createElement('div');
+  card.className = 'stay-card';
+  card.style.borderLeftColor = msg.color || '#4F46E5';
+  card.id = 'card-' + key;
+
+  const author = document.createElement('div');
+  author.className = 'stay-author';
+  author.style.color = msg.color || '#818CF8';
+  author.textContent = msg.name || '匿名';
+  card.appendChild(author);
+
+  if (msg.type === 'text') {
+    const t = document.createElement('div');
+    t.className = 'stay-text';
+    t.textContent = msg.text;
+    card.appendChild(t);
+  } else if (msg.type === 'emoji') {
+    const row = document.createElement('div');
+    row.innerHTML = `<span class="stay-emoji">${msg.emoji}</span> <span class="stay-text" style="display:inline">${msg.label}</span>`;
+    card.appendChild(row);
+  } else if (msg.type === 'poll') {
+    const row = document.createElement('div');
+    row.className = 'stay-poll';
+    row.innerHTML = `<div class="stay-poll-num">${msg.value}</div><span class="stay-text">で回答</span>`;
+    card.appendChild(row);
+  }
+
+  // Timer bar animation
+  const bar = document.createElement('div');
+  bar.className = 'timer-bar';
+  bar.style.transition = `width ${displayDur}s linear`;
+  card.appendChild(bar);
+  stayGrid.appendChild(card);
+  // Trigger animation after paint
+  requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = '0%'; }));
+
+  // Auto-remove after duration
+  const tid = setTimeout(() => removeCard(key), displayDur * 1000);
+  stayTimers.set(key, { card, tid });
+
+  // Enforce max cards
+  enforcMaxCards();
+}
+
+function removeCard(key) {
+  const entry = stayTimers.get(key);
+  if (!entry) return;
+  entry.card.classList.add('fading');
+  setTimeout(() => { entry.card.remove(); stayTimers.delete(key); }, 500);
+}
+
+function enforcMaxCards() {
+  while (stayTimers.size > maxCards) {
+    const firstKey = stayTimers.keys().next().value;
+    const entry = stayTimers.get(firstKey);
+    clearTimeout(entry.tid);
+    removeCard(firstKey);
+  }
+}
+
+// ---- FLOW MODE ----
+const flowList = document.getElementById('flow-list');
+let flowItems = [];
+
+function addFlowItem(msg) {
+  const item = document.createElement('div');
+  item.className = 'flow-item';
+  item.style.borderLeftColor = msg.color || '#4F46E5';
+  const author = document.createElement('div');
+  author.className = 'flow-author';
+  author.style.color = msg.color || '#818CF8';
+  author.textContent = msg.name || '匿名';
+  item.appendChild(author);
+  const content = document.createElement('div');
+  content.className = 'flow-text';
+  if (msg.type === 'text')  content.textContent = msg.text;
+  else if (msg.type === 'emoji') content.textContent = `${msg.emoji} ${msg.label}`;
+  else if (msg.type === 'poll')  content.textContent = `📊 ${msg.value} で回答`;
+  item.appendChild(content);
+  flowList.insertBefore(item, flowList.firstChild);
+  flowItems.push(item);
+  // Keep flow list trimmed
+  while (flowItems.length > 12) {
+    const old = flowItems.shift();
+    old.remove();
+  }
+}
+
+// ---- Poll chart update ----
+function updatePoll(value) {
+  if (value < 1 || value > 5) return;
+  pollCounts[value]++;
+  const total = Object.values(pollCounts).reduce((a,b) => a+b, 0);
+  for (let i = 1; i <= 5; i++) {
+    const pct = total > 0 ? Math.round(pollCounts[i] / total * 100) : 0;
+    document.getElementById(`bar${i}`).style.width = pct + '%';
+    document.getElementById(`cnt${i}`).textContent = pollCounts[i];
+  }
+  document.getElementById('poll-total').textContent = `回答 ${total} 件`;
+}
+
+// ---- Reaction counter ----
+function updateReaction(emoji) {
+  reactionCounts[emoji] = (reactionCounts[emoji] || 0) + 1;
+  const el = document.querySelector(`.rc-count[data-emoji="${emoji}"]`);
+  if (el) el.textContent = reactionCounts[emoji];
+}
+
+// ---- Settings ----
+document.getElementById('mode-stay').addEventListener('click', () => setMode('stay'));
+document.getElementById('mode-flow').addEventListener('click', () => setMode('flow'));
+
+function setMode(mode) {
+  displayMode = mode;
+  document.getElementById('mode-stay').classList.toggle('active', mode === 'stay');
+  document.getElementById('mode-flow').classList.toggle('active', mode === 'flow');
+  document.getElementById('duration-row').style.opacity = mode === 'stay' ? '1' : '0.4';
+  stayGrid.style.display = mode === 'stay' ? 'flex' : 'none';
+  flowList.style.display  = mode === 'flow' ? 'flex' : 'none';
+}
+
+const durSlider = document.getElementById('duration-slider');
+const durVal    = document.getElementById('duration-val');
+durSlider.addEventListener('input', () => {
+  displayDur = parseInt(durSlider.value);
+  durVal.textContent = displayDur + '秒';
+});
+
+document.querySelectorAll('[data-max]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    maxCards = parseInt(btn.dataset.max);
+    document.querySelectorAll('[data-max]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    enforcMaxCards();
+  });
+});
+
+// ---- Clear messages ----
+document.getElementById('clear-btn').addEventListener('click', () => {
+  if (!confirm('表示中のメッセージをすべて消去しますか？\n（Firebaseのデータは残ります）')) return;
+  // Clear stay mode
+  stayTimers.forEach((entry, key) => {
+    clearTimeout(entry.tid);
+    entry.card.remove();
+  });
+  stayTimers.clear();
+  // Clear flow mode
+  flowList.innerHTML = '';
+  flowItems = [];
+  // Reset poll & reactions
+  pollCounts = {1:0, 2:0, 3:0, 4:0, 5:0};
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById(`bar${i}`).style.width = '0%';
+    document.getElementById(`cnt${i}`).textContent = '0';
+  }
+  document.getElementById('poll-total').textContent = '回答 0 件';
+  reactionCounts = {};
+  document.querySelectorAll('.rc-count').forEach(el => { el.textContent = '0'; });
+});
+
+// ---- Full screen ----
+document.getElementById('fullscreen-btn').addEventListener('click', () => {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+});
+</script>
+</body>
+</html>
