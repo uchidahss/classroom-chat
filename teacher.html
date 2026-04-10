@@ -22,37 +22,26 @@
 }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body { height:100%; overflow:hidden; }
-body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sans-serif; background:var(--bg); color:var(--text); }
+body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',sans-serif; background:var(--surface); color:var(--text); }
 
-/* ===== SETUP ===== */
-#setup { height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem 1.5rem; gap:1.75rem; background:var(--surface); }
-.setup-icon { width:68px; height:68px; border-radius:20px; background:var(--tea); display:flex; align-items:center; justify-content:center; }
-.setup-icon svg { width:34px; height:34px; fill:white; }
-.setup-title { text-align:center; }
-.setup-title h1 { font-size:1.4rem; font-weight:700; margin-bottom:.35rem; }
-.setup-title p { font-size:.85rem; color:var(--muted); line-height:1.6; }
-.setup-form { width:100%; max-width:300px; display:flex; flex-direction:column; gap:1rem; }
-.form-group label { display:block; font-size:.75rem; font-weight:700; color:var(--muted); margin-bottom:.35rem; }
-.form-group input { width:100%; padding:.75rem 1rem; border:1.5px solid var(--border); border-radius:var(--radius); font-size:.95rem; font-family:inherit; outline:none; background:var(--bg); transition:border-color .2s; }
-.form-group input:focus { border-color:var(--tea); background:var(--surface); }
-.code-box { background:var(--tea-bg); border-radius:var(--radius); padding:1rem; text-align:center; }
-.code-big { font-family:'SF Mono',monospace; font-size:2.2rem; font-weight:800; letter-spacing:.6rem; color:var(--tea); display:block; margin-bottom:.3rem; }
-.code-hint { font-size:.75rem; color:var(--tea); }
-.regen-btn { background:none; border:none; font-size:.75rem; color:var(--muted); text-decoration:underline; cursor:pointer; display:block; margin:.3rem auto 0; }
-#start-btn { width:100%; padding:.9rem; background:var(--tea); color:white; border:none; border-radius:var(--radius); font-size:1rem; font-weight:700; cursor:pointer; }
-#start-btn:active { opacity:.85; }
+/* ===== LAYOUT ===== */
+#app { height:100dvh; display:flex; flex-direction:column; overflow:hidden; }
 
-/* ===== APP ===== */
-#app { display:none; height:100dvh; overflow-y:scroll; scroll-snap-type:y mandatory; -webkit-overflow-scrolling:touch; }
-.section { height:100dvh; scroll-snap-align:start; display:flex; flex-direction:column; overflow:hidden; background:var(--surface); }
-
-/* Header */
-.s-head { flex-shrink:0; height:50px; background:var(--surface); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 1rem; gap:.625rem; }
+/* ===== HEADER ===== */
+.app-head { flex-shrink:0; background:var(--surface); border-bottom:1px solid var(--border); padding:0 1rem; display:flex; flex-direction:column; }
+.head-row { height:48px; display:flex; align-items:center; gap:.625rem; }
 .room-pill { font-size:.7rem; font-weight:800; letter-spacing:.06rem; padding:.2rem .65rem; border-radius:100px; background:var(--tea-bg); color:var(--tea); }
-.teacher-badge { font-size:.68rem; font-weight:700; padding:.15rem .55rem; border-radius:100px; background:var(--tea); color:white; }
+.teacher-badge { font-size:.68rem; font-weight:700; padding:.15rem .55rem; border-radius:100px; background:var(--tea); color:white; flex-shrink:0; }
 .s-title { font-size:.9rem; font-weight:600; flex:1; }
-.icon-btn { width:32px; height:32px; border-radius:8px; background:var(--bg); border:1px solid var(--border); font-size:.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-.icon-btn:active { opacity:.7; }
+
+/* ===== TABS ===== */
+.tabs { display:flex; }
+.tab { flex:1; padding:.55rem 0; text-align:center; font-size:.82rem; font-weight:700; color:var(--muted); border-bottom:2.5px solid transparent; cursor:pointer; transition:all .15s; user-select:none; }
+.tab.active { color:var(--tea); border-bottom-color:var(--tea); }
+
+/* ===== PANELS ===== */
+.panel { flex:1; display:none; flex-direction:column; overflow:hidden; }
+.panel.active { display:flex; }
 
 /* ===== REDSPA ZONE ===== */
 #redspa-zone { flex-shrink:0; background:var(--red-bg); border-bottom:1px solid var(--red-border); display:none; }
@@ -63,7 +52,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 .rs-text { font-size:.9rem; color:var(--text); line-height:1.4; word-break:break-word; }
 .rs-bar { position:absolute; bottom:0; left:0; height:3px; background:var(--red); border-radius:0 2px 2px 0; }
 
-/* ===== CHAT AREA ===== */
+/* ===== CHAT ===== */
 #chat-wrap { flex:1; position:relative; overflow:hidden; }
 #msgs { height:100%; overflow-y:auto; padding:.875rem .875rem .5rem; display:flex; flex-direction:column; gap:.55rem; scroll-behavior:smooth; }
 #msgs-empty { margin:auto; text-align:center; color:var(--muted); font-size:.85rem; line-height:2; }
@@ -74,87 +63,70 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 
 /* Emoji float overlay */
 #emoji-overlay { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:10; }
-.float-emoji { position:absolute; bottom:0; font-size:1.8rem; pointer-events:none; animation:floatUp 2.5s ease-out forwards; line-height:1; }
+.float-emoji { position:absolute; bottom:10%; font-size:1.8rem; pointer-events:none; line-height:1; animation:floatUp 2.5s ease-out forwards; }
 @keyframes floatUp {
   0%   { opacity:1;   transform:translateY(0)     translateX(0); }
-  25%  { opacity:.9;  transform:translateY(-22vh) translateX(var(--d1)); }
-  60%  { opacity:.65; transform:translateY(-56vh) translateX(var(--d2)); }
-  100% { opacity:0;   transform:translateY(-88vh) translateX(var(--d3)); }
+  25%  { opacity:.9;  transform:translateY(-11vh) translateX(var(--d1)); }
+  60%  { opacity:.65; transform:translateY(-28vh) translateX(var(--d2)); }
+  100% { opacity:0;   transform:translateY(-44vh) translateX(var(--d3)); }
 }
 
-/* ===== SECTION 2: POLL ===== */
-#s-poll { background:var(--bg); }
-#s-poll .s-head { background:var(--surface); }
-.poll-body { flex:1; overflow-y:auto; padding:1rem .875rem; display:flex; flex-direction:column; gap:.875rem; }
-.poll-sect-label { font-size:.72rem; font-weight:700; color:var(--muted); margin-bottom:.4rem; }
-.result-rows { display:flex; flex-direction:column; gap:.4rem; }
-.r-row { display:flex; align-items:center; gap:.55rem; }
-.r-num { font-size:.82rem; font-weight:800; color:var(--text); width:18px; text-align:right; }
-.r-track { flex:1; height:22px; background:var(--border); border-radius:4px; overflow:hidden; }
-.r-fill { height:100%; background:var(--primary); border-radius:4px; transition:width .5s ease; width:0%; }
-.r-count { font-size:.75rem; color:var(--muted); width:24px; text-align:right; }
-.result-total { font-size:.75rem; color:var(--muted); text-align:right; margin-top:.25rem; }
+/* ===== CLEAR BAR (teacher only) ===== */
+.clear-bar { flex-shrink:0; padding:.6rem .875rem .75rem; display:flex; border-top:1px solid var(--border); background:var(--surface); }
+#clear-btn {
+  flex:1; padding:.65rem;
+  border:1.5px solid #CBD5E1; border-radius:var(--radius);
+  background:var(--bg); color:var(--muted);
+  font-size:.9rem; font-weight:600; cursor:pointer;
+  transition:all .15s;
+}
+#clear-btn:active { background:#FEE2E2; border-color:var(--red); color:var(--red); }
+
+/* ===== POLL PANEL ===== */
+.poll-body { flex:1; overflow-y:auto; padding:1rem .875rem; display:flex; flex-direction:column; gap:1rem; background:var(--bg); }
+.poll-sect-label { font-size:.72rem; font-weight:700; color:var(--muted); margin-bottom:.5rem; }
+.result-rows { display:flex; flex-direction:column; gap:.55rem; }
+.r-row { display:flex; align-items:center; gap:.6rem; }
+.r-num { font-size:.85rem; font-weight:800; color:var(--text); width:20px; text-align:right; flex-shrink:0; }
+.r-track { flex:1; height:28px; background:var(--border); border-radius:6px; overflow:hidden; }
+.r-fill { height:100%; background:var(--primary); border-radius:6px; transition:width .5s ease; width:0%; }
+.r-count { font-size:.78rem; color:var(--muted); width:26px; text-align:right; flex-shrink:0; }
+.result-total { font-size:.75rem; color:var(--muted); text-align:right; margin-top:.2rem; }
 #clear-poll { width:100%; padding:.65rem; border:1.5px solid var(--red); border-radius:var(--radius); background:none; color:var(--red); font-size:.85rem; font-weight:600; cursor:pointer; margin-top:.25rem; }
 #clear-poll:active { background:#FEF2F2; }
-
-/* ===== DOT NAV ===== */
-#dot-nav { position:fixed; right:10px; top:50%; transform:translateY(-50%); display:none; flex-direction:column; gap:6px; z-index:100; }
-.d { width:6px; height:6px; border-radius:3px; background:rgba(100,116,139,.35); transition:height .25s,background .25s; cursor:pointer; }
-.d.on { height:16px; background:var(--tea); }
 </style>
 </head>
 <body>
-
-<!-- SETUP -->
-<div id="setup">
-  <div class="setup-icon"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg></div>
-  <div class="setup-title">
-    <h1>授業チャット <small style="font-size:.8rem;color:var(--tea);">先生</small></h1>
-    <p>ルームコードを学生に伝えてください<br>学生は student.html から参加します</p>
-  </div>
-  <div class="setup-form">
-    <div class="form-group">
-      <label>科目・クラス名（任意）</label>
-      <input type="text" id="subject-input" placeholder="例: デザイン基礎 1年A組">
-    </div>
-    <div class="code-box">
-      <span class="code-big" id="code-display">----</span>
-      <span class="code-hint">このコードを学生に伝えてください</span>
-      <button class="regen-btn" id="regen-btn">↺ 別のコードを生成</button>
-    </div>
-    <button id="start-btn">授業を開始する →</button>
-  </div>
-</div>
-
-<!-- APP -->
 <div id="app">
 
-  <!-- Section 1: Chat -->
-  <section class="section" id="s-chat">
-    <div class="s-head">
-      <span class="room-pill" id="room-pill">----</span>
+  <!-- Header + Tabs -->
+  <div class="app-head">
+    <div class="head-row">
+      <span class="room-pill">授業中</span>
       <span class="teacher-badge">先生</span>
       <span class="s-title" id="s-title">チャット</span>
-      <button class="icon-btn" id="clear-btn" title="表示をクリア">🗑</button>
     </div>
+    <div class="tabs">
+      <div class="tab active" data-tab="chat">💬 チャット</div>
+      <div class="tab"        data-tab="poll">📊 アンケート</div>
+    </div>
+  </div>
 
-    <!-- 赤スパエリア -->
+  <!-- Chat Panel -->
+  <div class="panel active" id="panel-chat">
     <div id="redspa-zone"></div>
-
-    <!-- チャット本体 -->
     <div id="chat-wrap">
       <div id="msgs"><div id="msgs-empty">学生からのメッセージがここに表示されます</div></div>
       <div id="emoji-overlay"></div>
     </div>
-  </section>
-
-  <!-- Section 2: Poll -->
-  <section class="section" id="s-poll">
-    <div class="s-head">
-      <span class="room-pill" id="room-pill2">----</span>
-      <span class="teacher-badge">先生</span>
-      <span class="s-title">アンケート結果</span>
+    <!-- Clear bar (teacher only) -->
+    <div class="clear-bar">
+      <button id="clear-btn">🗑 全員のチャットをクリア</button>
     </div>
+  </div>
+
+  <!-- Poll Panel -->
+  <div class="panel" id="panel-poll">
     <div class="poll-body">
       <div>
         <div class="poll-sect-label">回答結果（1〜10）</div>
@@ -163,14 +135,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
       </div>
       <button id="clear-poll">🗑 アンケート結果をリセット</button>
     </div>
-  </section>
+  </div>
 
-</div>
-
-<!-- Dot nav -->
-<div id="dot-nav">
-  <div class="d on"></div>
-  <div class="d"></div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
@@ -189,68 +155,64 @@ const firebaseConfig = {
   appId:             "YOUR_APP_ID"
 };
 /* ================================================================ */
+   ★ 固定ルーム名（student.html と同じ値にしてください）
+   ================================================================ */
+const ROOM = "MYCLASS";
+/* ================================================================ */
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let roomCode   = null;
 let pollVotes  = {};
 let emojiCount = 0;
 
 const $ = id => document.getElementById(id);
 
-// ---- Poll chart init ----
+// ---- Build poll chart ----
 (function(){
-  const rows = $('result-rows');
+  const rr=$('result-rows');
   for(let i=1;i<=10;i++){
-    rows.innerHTML += `<div class="r-row"><span class="r-num">${i}</span><div class="r-track"><div class="r-fill" id="rf${i}"></div></div><span class="r-count" id="rc${i}">0</span></div>`;
+    rr.innerHTML+=`<div class="r-row"><span class="r-num">${i}</span><div class="r-track"><div class="r-fill" id="rf${i}"></div></div><span class="r-count" id="rc${i}">0</span></div>`;
   }
 })();
 
-// ---- Room code generation ----
-const CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-function genCode(){ return Array.from({length:4},()=>CHARS[Math.floor(Math.random()*CHARS.length)]).join(''); }
-let code = genCode();
-$('code-display').textContent = code;
-$('regen-btn').addEventListener('click', ()=>{ code=genCode(); $('code-display').textContent=code; });
-
-// ---- Start room ----
-$('start-btn').addEventListener('click', async ()=>{
-  roomCode = code;
-  const subject = $('subject-input').value.trim() || '授業チャット';
-  await db.ref(`classrooms/${roomCode}/settings`).set({ subject, createdAt:Date.now() });
-  $('room-pill').textContent  = roomCode;
-  $('room-pill2').textContent = roomCode;
-  $('s-title').textContent    = subject;
-  $('setup').style.display    = 'none';
-  $('app').style.display      = 'block';
-  $('dot-nav').style.display  = 'flex';
-  startListening();
+// ---- Tabs ----
+document.querySelectorAll('.tab').forEach(tab=>{
+  tab.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    tab.classList.add('active');
+    $('panel-'+tab.dataset.tab).classList.add('active');
+  });
 });
 
-// ---- Listeners ----
+// ---- Init room settings ----
+db.ref(`classrooms/${ROOM}/settings`).once('value', snap=>{
+  const subj=snap.val()?.subject||'授業チャット';
+  $('s-title').textContent=subj;
+});
+
+// ---- Start listening ----
+startListening();
+
 function startListening() {
-  const t0 = Date.now();
-  let ready = false;
-  setTimeout(()=>ready=true, 400);
+  const t0=Date.now();
+  let ready=false;
+  setTimeout(()=>ready=true,400);
 
-  // Messages
-  db.ref(`classrooms/${roomCode}/messages`)
+  db.ref(`classrooms/${ROOM}/messages`)
     .orderByChild('timestamp').startAt(t0)
-    .on('child_added', snap=>{ if(ready) renderMsg(snap.val(), snap.key); });
+    .on('child_added', snap=>{ if(ready) renderMsg(snap.val(),snap.key); });
 
-  // Red spas
-  db.ref(`classrooms/${roomCode}/redspas`)
+  db.ref(`classrooms/${ROOM}/redspas`)
     .orderByChild('timestamp').startAt(t0)
     .on('child_added', snap=>{ if(ready) showRedspa(snap.val()); });
 
-  // Emoji animations
-  db.ref(`classrooms/${roomCode}/emojis`)
+  db.ref(`classrooms/${ROOM}/emojis`)
     .orderByChild('timestamp').startAt(t0)
     .on('child_added', snap=>{ if(ready) spawnEmoji(snap.val().emoji); });
 
-  // Poll
-  db.ref(`classrooms/${roomCode}/pollVotes`).on('value', snap=>{
+  db.ref(`classrooms/${ROOM}/pollVotes`).on('value', snap=>{
     pollVotes={};
     snap.forEach(c=>{ const v=c.val().value; if(v>=1&&v<=10) pollVotes[v]=(pollVotes[v]||0)+1; });
     updatePollChart();
@@ -258,45 +220,45 @@ function startListening() {
 }
 
 // ---- Render message ----
-const msgsEl = $('msgs');
-const shownIds = new Set();
+const msgsEl=$('msgs');
+const shownIds=new Set();
 
-function renderMsg(msg, key) {
+function renderMsg(msg,key) {
   if(shownIds.has(key)) return;
   shownIds.add(key);
   $('msgs-empty').style.display='none';
-  const wrap = document.createElement('div');
-  wrap.className = 'msg';
-  const name = document.createElement('div');
-  name.className = 'msg-name';
-  name.style.color = msg.color||'#64748B';
-  name.textContent = msg.name||'匿名';
+  const wrap=document.createElement('div');
+  wrap.className='msg';
+  const name=document.createElement('div');
+  name.className='msg-name';
+  name.style.color=msg.color||'#64748B';
+  name.textContent=msg.name||'匿名';
   wrap.appendChild(name);
-  const bubble = document.createElement('div');
-  bubble.className = 'msg-bubble';
-  bubble.textContent = msg.text||'';
-  bubble.style.borderLeft = `3px solid ${msg.color||'#CBD5E1'}`;
+  const bubble=document.createElement('div');
+  bubble.className='msg-bubble';
+  bubble.textContent=msg.text||'';
+  bubble.style.borderLeft=`3px solid ${msg.color||'#CBD5E1'}`;
   wrap.appendChild(bubble);
   msgsEl.appendChild(wrap);
-  msgsEl.scrollTop = msgsEl.scrollHeight;
-  const all = msgsEl.querySelectorAll('.msg');
+  msgsEl.scrollTop=msgsEl.scrollHeight;
+  const all=msgsEl.querySelectorAll('.msg');
   while(all.length>50){ const f=msgsEl.querySelector('.msg'); if(f) f.remove(); }
 }
 
 // ---- Red supa ----
-const redspas = [];
-const rzone   = $('redspa-zone');
+const redspas=[];
+const rzone=$('redspa-zone');
 
 function showRedspa(msg) {
   if(redspas.length>=3) evictOldestRedspa();
-  const card = document.createElement('div');
-  card.className = 'rs-card';
-  card.innerHTML = `<div class="rs-name">${msg.name}</div><div class="rs-text">${escHtml(msg.text)}</div><div class="rs-bar" style="width:100%;transition:width 10s linear;"></div>`;
+  const card=document.createElement('div');
+  card.className='rs-card';
+  card.innerHTML=`<div class="rs-name">${escHtml(msg.name)}</div><div class="rs-text">${escHtml(msg.text)}</div><div class="rs-bar" style="width:100%;transition:width 10s linear;"></div>`;
   rzone.appendChild(card);
   rzone.style.display='block';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{ const b=card.querySelector('.rs-bar'); if(b) b.style.width='0%'; }));
-  const tid = setTimeout(()=>removeRedspa(card,tid), 10000);
-  redspas.push({el:card, timerId:tid});
+  const tid=setTimeout(()=>removeRedspa(card,tid),10000);
+  redspas.push({el:card,timerId:tid});
 }
 
 function evictOldestRedspa() {
@@ -307,14 +269,14 @@ function evictOldestRedspa() {
   if(!rzone.children.length) rzone.style.display='none';
 }
 
-function removeRedspa(card, tid) {
+function removeRedspa(card,tid) {
   const idx=redspas.findIndex(r=>r.timerId===tid);
   if(idx>-1) redspas.splice(idx,1);
   card.remove();
   if(!rzone.children.length) rzone.style.display='none';
 }
 
-// ---- Emoji float animation ----
+// ---- Emoji float ----
 function spawnEmoji(emoji) {
   if(emojiCount>=10) return;
   emojiCount++;
@@ -323,10 +285,10 @@ function spawnEmoji(emoji) {
   el.className='float-emoji';
   el.textContent=emoji;
   const x=10+Math.random()*70;
-  const d1=(Math.random()-.5)*40, d2=(Math.random()-.5)*60, d3=(Math.random()-.5)*30;
+  const d1=(Math.random()-.5)*30, d2=(Math.random()-.5)*50, d3=(Math.random()-.5)*25;
   el.style.cssText=`left:${x}%; --d1:${d1}px; --d2:${d2}px; --d3:${d3}px;`;
   overlay.appendChild(el);
-  setTimeout(()=>{ el.remove(); emojiCount--; }, 2500);
+  setTimeout(()=>{ el.remove(); emojiCount--; },2500);
 }
 
 // ---- Poll chart ----
@@ -340,28 +302,22 @@ function updatePollChart() {
   $('result-total').textContent=`回答 ${total} 件`;
 }
 
-// ---- Clear chat display ----
+// ---- Global clear (all clients) ----
 $('clear-btn').addEventListener('click',()=>{
-  if(!confirm('チャット表示をクリアしますか？')) return;
+  if(!confirm('全員のチャット画面をクリアしますか？')) return;
+  // Write signal with timestamp so repeated presses also trigger
+  db.ref(`classrooms/${ROOM}/clearSignal`).set(Date.now());
+  // Also clear own display immediately
   msgsEl.querySelectorAll('.msg').forEach(m=>m.remove());
   shownIds.clear();
   $('msgs-empty').style.display='block';
+  while(redspas.length) evictOldestRedspa();
 });
 
 // ---- Clear poll ----
 $('clear-poll').addEventListener('click',()=>{
   if(!confirm('アンケート結果をリセットしますか？')) return;
-  db.ref(`classrooms/${roomCode}/pollVotes`).remove();
-});
-
-// ---- Dot nav ----
-const appEl=$('app');
-appEl.addEventListener('scroll',()=>{
-  const idx=Math.round(appEl.scrollTop/window.innerHeight);
-  document.querySelectorAll('#dot-nav .d').forEach((d,i)=>d.classList.toggle('on',i===idx));
-},{passive:true});
-document.querySelectorAll('#dot-nav .d').forEach((d,i)=>{
-  d.addEventListener('click',()=>appEl.scrollTo({top:i*window.innerHeight,behavior:'smooth'}));
+  db.ref(`classrooms/${ROOM}/pollVotes`).remove();
 });
 
 function escHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
