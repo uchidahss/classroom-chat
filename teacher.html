@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>黒板</title>
+<title>授業チャット — 先生</title>
 <style>
 :root {
   --primary: #4F46E5;
@@ -48,9 +48,9 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 #redspa-zone { flex-shrink:0; background:var(--red-bg); border-bottom:1px solid var(--red-border); display:none; }
 .rs-card { padding:6px 12px 8px; border-bottom:1px solid var(--red-border); position:relative; overflow:hidden; }
 .rs-card:last-child { border-bottom:none; }
-.rs-name { font-size:.9rem; font-weight:800; color:#BE123C; margin-bottom:4px; display:flex; align-items:center; gap:4px; }
+.rs-name { font-size:.65rem; font-weight:800; color:#BE123C; margin-bottom:2px; display:flex; align-items:center; gap:4px; }
 .rs-name::before { content:'🔴'; font-size:.7rem; }
-.rs-text { font-size:1.2rem; color:var(--text); line-height:1.5; word-break:break-word; }
+.rs-text { font-size:.9rem; color:var(--text); line-height:1.4; word-break:break-word; }
 .rs-bar { position:absolute; bottom:0; left:0; height:3px; background:var(--red); }
 
 #chat-wrap { flex:1; position:relative; overflow:hidden; }
@@ -60,8 +60,8 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 .msg { display:flex; flex-direction:column; animation:fadeUp .28s ease; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 .msg.other { align-items:flex-start; }
-.msg-name { font-size:.9rem; font-weight:700; margin-bottom:.3rem; padding:0 .35rem; }
-.msg-bubble { max-width:90%; padding:.75rem 1rem; border-radius:16px; font-size:1.5rem; line-height:1.6; word-break:break-word; }
+.msg-name { font-size:.67rem; font-weight:700; margin-bottom:.2rem; padding:0 .35rem; }
+.msg-bubble { max-width:85%; padding:.55rem .85rem; border-radius:16px; font-size:.93rem; line-height:1.5; word-break:break-word; }
 
 #emoji-overlay { position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:10; }
 .float-emoji { position:absolute; bottom:10%; font-size:1.8rem; pointer-events:none; line-height:1; animation:floatUp 2.5s ease-out forwards; }
@@ -70,27 +70,32 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
   100% { opacity:0; transform:translateY(-44vh) translateX(var(--d1)); }
 }
 
-
+.clear-bar { flex-shrink:0; padding:.6rem .875rem .75rem; border-top:1px solid var(--border); background:var(--surface); display:flex; gap:.5rem; }
+#clear-btn { flex:1; padding:.65rem; border:1.5px solid var(--border); border-radius:var(--radius); background:var(--bg); color:var(--muted); font-size:.9rem; font-weight:600; cursor:pointer; }
+#clear-btn:active { background:#FEE2E2; border-color:var(--red); color:var(--red); }
+#end-btn { flex:1; padding:.65rem; border:none; border-radius:var(--radius); background:var(--red); color:white; font-size:.9rem; font-weight:700; cursor:pointer; }
+#end-btn:active { opacity:.85; }
 
 #panel-poll { background:var(--bg); }
 .poll-body { flex:1; overflow-y:auto; padding:1rem .875rem; display:flex; flex-direction:column; gap:1rem; }
 .poll-sect-label { font-size:.72rem; font-weight:700; color:var(--muted); margin-bottom:.5rem; }
 .result-rows { display:flex; flex-direction:column; gap:.5rem; }
 .r-row { display:flex; align-items:center; gap:.6rem; }
-.r-num { font-size:1.2rem; font-weight:800; color:var(--text); width:28px; text-align:right; flex-shrink:0; }
-.r-track { flex:1; height:84px; background:var(--border); border-radius:10px; overflow:hidden; }
-.r-fill { height:100%; background:var(--primary); border-radius:10px; transition:width .5s ease; width:0%; }
-.r-count { font-size:1.1rem; color:var(--muted); width:36px; text-align:right; flex-shrink:0; }
-.result-total { font-size:1rem; color:var(--muted); text-align:right; margin-top:.5rem; }
-
+.r-num { font-size:.85rem; font-weight:800; color:var(--text); width:20px; text-align:right; flex-shrink:0; }
+.r-track { flex:1; height:28px; background:var(--border); border-radius:6px; overflow:hidden; }
+.r-fill { height:100%; background:var(--primary); border-radius:6px; transition:width .5s ease; width:0%; }
+.r-count { font-size:.78rem; color:var(--muted); width:26px; text-align:right; flex-shrink:0; }
+.result-total { font-size:.75rem; color:var(--muted); text-align:right; margin-top:.2rem; }
+#clear-poll { width:100%; padding:.65rem; border:1.5px solid var(--red); border-radius:var(--radius); background:none; color:var(--red); font-size:.85rem; font-weight:600; cursor:pointer; }
+#clear-poll:active { background:#FEF2F2; }
 
 #panel-qa { background:var(--bg); }
 .qa-body { flex:1; overflow-y:auto; padding:1rem .875rem; display:flex; flex-direction:column; gap:.625rem; }
 .qa-card { background:var(--surface); border-radius:var(--radius); padding:.75rem 1rem .75rem 1rem; border:1px solid var(--border); position:relative; display:flex; align-items:flex-start; gap:.75rem; animation:fadeUp .28s ease; }
 .qa-card.answered { opacity:.4; }
 .qa-card-body { flex:1; min-width:0; }
-.qa-card-name { font-size:.95rem; font-weight:700; margin-bottom:.4rem; }
-.qa-card-text { font-size:1.5rem; line-height:1.6; word-break:break-word; color:var(--text); }
+.qa-card-name { font-size:.67rem; font-weight:700; margin-bottom:.3rem; }
+.qa-card-text { font-size:.93rem; line-height:1.5; word-break:break-word; color:var(--text); }
 .qa-check { width:22px; height:22px; flex-shrink:0; accent-color:var(--tea); cursor:pointer; margin-top:2px; }
 .qa-empty { text-align:center; color:var(--muted); font-size:.85rem; padding:2rem 0; }
 </style>
@@ -123,7 +128,10 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
       <div id="msgs"><div id="msgs-empty">学生からのメッセージがここに表示されます</div></div>
       <div id="emoji-overlay"></div>
     </div>
-
+    <div class="clear-bar">
+      <button id="clear-btn">🗑 チャットをクリア</button>
+      <button id="end-btn">⏹ 授業を終了する</button>
+    </div>
   </div>
 
   <div class="panel" id="panel-poll">
@@ -133,7 +141,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
         <div class="result-rows" id="result-rows"></div>
         <div class="result-total" id="result-total">回答 0 件</div>
       </div>
-
+      <button id="clear-poll">🗑 アンケート結果をリセット</button>
     </div>
   </div>
   <div class="panel" id="panel-qa">
@@ -191,7 +199,11 @@ document.querySelectorAll('.tab').forEach(tab => {
 $('loading').style.display = 'none';
 $('app').style.display     = 'flex';
 
-// 黒板アプリは active フラグを書き込まない（読むだけ）
+const activeRef = db.ref(`classrooms/${ROOM}/active`);
+
+// 先生が開くたびに active = true をセット
+// 終了は授業終了ボタンのみ（リロードで閉室にならない）
+activeRef.set(true);
 
 // 設定読み込み・初回書き込み
 db.ref(`classrooms/${ROOM}/settings`).get().then(snap => {
@@ -322,11 +334,31 @@ function updatePollChart() {
   $('result-total').textContent = `回答 ${total} 件`;
 }
 
+// ---- Clear chat (all clients) ----
+$('clear-btn').addEventListener('click', () => {
+  if (!confirm('全員のチャット画面をクリアしますか？')) return;
+  db.ref(`classrooms/${ROOM}/clearSignal`).set(Date.now());
+  msgsEl.querySelectorAll('.msg').forEach(m => m.remove());
+  shownIds.clear();
+  $('msgs-empty').style.display = 'block';
+  while (redspas.length) evictOldestRedspa();
+});
 
+// ---- Clear poll ----
+$('clear-poll').addEventListener('click', () => {
+  if (!confirm('アンケート結果をリセットしますか？')) return;
+  db.ref(`classrooms/${ROOM}/pollVotes`).remove();
+});
 
-
-
-
+// ---- 授業終了（全データ削除） ----
+$('end-btn').addEventListener('click', () => {
+  if (!confirm('授業を終了しますか？\nチャット・アンケート・すべてのデータが削除されます。')) return;
+  db.ref(`classrooms/${ROOM}`).remove().then(() => {
+    alert('授業を終了しました。データをすべて削除しました。\n次の授業はページをリロードして開始してください。');
+  }).catch(() => {
+    alert('削除に失敗しました。もう一度お試しください。');
+  });
+});
 
 // ---- Q&A ----
 function makeQaCard(key, data) {
