@@ -378,7 +378,7 @@ function setActive(isActive) {
 function startListening() {
   const t0 = Date.now();
   let ready = false;
-  setTimeout(() => ready = true, 400);
+  setTimeout(() => ready = true, 1000);
 
   // アクティブフラグ監視
   db.ref(`classrooms/${ROOM}/active`).on('value', snap => {
@@ -386,16 +386,22 @@ function startListening() {
   });
 
   db.ref(`classrooms/${ROOM}/messages`)
-    .orderByChild('timestamp').startAt(t0)
+    .orderByChild('timestamp').startAt(t0).limitToLast(50)
     .on('child_added', snap => { if (ready) renderMsg(snap.val()); });
 
   db.ref(`classrooms/${ROOM}/redspas`)
-    .orderByChild('timestamp').startAt(t0)
+    .orderByChild('timestamp').startAt(t0).limitToLast(10)
     .on('child_added', snap => { if (ready) showRedspa(snap.val()); });
 
   db.ref(`classrooms/${ROOM}/emojis`)
-    .orderByChild('timestamp').startAt(t0)
-    .on('child_added', snap => { if (ready) spawnEmoji(snap.val().emoji); });
+    .orderByChild('timestamp').startAt(t0).limitToLast(30)
+    .on('child_added', snap => {
+      if (!ready) return;
+      const data = snap.val();
+      // 3秒以上前の絵文字は無視（リロード時の大量発火防止）
+      if (Date.now() - data.timestamp > 3000) return;
+      spawnEmoji(data.emoji);
+    });
 
   db.ref(`classrooms/${ROOM}/pollVotes`).on('value', snap => {
     pollVotes = {};
@@ -423,6 +429,9 @@ function faintBg(hex) {
 }
 
 // ---- Render message ----
+let msgCount = 0;
+const MAX_MSGS = 50;
+
 function renderMsg(msg) {
   $('msgs-empty').style.display = 'none';
   const isMine = msg.studentId === myId;
@@ -441,13 +450,18 @@ function renderMsg(msg) {
   bubble.style.color = color;
   wrap.appendChild(bubble);
   msgsEl.appendChild(wrap);
+  msgCount++;
+  // カウンターで管理（DOM検索なし）
+  if (msgCount > MAX_MSGS) {
+    const first = msgsEl.querySelector('.msg');
+    if (first) { first.remove(); msgCount--; }
+  }
   msgsEl.scrollTop = msgsEl.scrollHeight;
-  const all = msgsEl.querySelectorAll('.msg');
-  while (all.length > 50) { const f = msgsEl.querySelector('.msg'); if (f) f.remove(); }
 }
 
 function clearChatDisplay() {
-  msgsEl.querySelectorAll('.msg').forEach(m => m.remove());
+  while (msgsEl.firstChild) msgsEl.removeChild(msgsEl.firstChild);
+  msgCount = 0;
   $('msgs-empty').style.display = 'block';
   while (redspas.length) evictOldestRedspa();
 }
