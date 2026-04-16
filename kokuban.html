@@ -273,9 +273,10 @@ function queueMsg(msg, key) {
 }
 
 function flushMsgQueue() {
-  const batch = msgQueue.splice(0, msgQueue.length);
-  rafPending  = false;
-  if (batch.length === 0) return;
+  rafPending = false;
+  if (msgQueue.length === 0) return;
+
+  const batch = msgQueue.splice(0, 10);
 
   const frag = document.createDocumentFragment();
   batch.forEach(msg => {
@@ -301,11 +302,16 @@ function flushMsgQueue() {
   msgsEl.appendChild(frag);
 
   while (msgCount > MAX_MSGS) {
-    const first = msgsEl.querySelector('.msg');
+    const first = msgsEl.firstElementChild;
     if (first) { first.remove(); msgCount--; }
     else break;
   }
   msgsEl.scrollTop = msgsEl.scrollHeight;
+
+  if (msgQueue.length > 0) {
+    rafPending = true;
+    requestAnimationFrame(flushMsgQueue);
+  }
 }
 
 // ---- Red supa ----
