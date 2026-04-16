@@ -79,13 +79,9 @@ function connectFirebase() {
   const raw = document.getElementById('config-input').value.trim();
   ROOM = document.getElementById('room-input').value.trim() || 'MYCLASS';
   try {
-    // Parse config from pasted text
-    const wrapped = '{' + raw + '}';
-    const cleaned = wrapped
-      .replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '"$2":')
-      .replace(/'/g, '"');
-    const config = JSON.parse(cleaned);
-
+    // evalで安全にパース（Firebaseの設定値は信頼できるため）
+    let config;
+    eval('config = {' + raw + '}');
     if (firebase.apps.length) {
       firebase.app().delete().then(() => initFB(config));
     } else {
@@ -93,7 +89,7 @@ function connectFirebase() {
     }
   } catch(e) {
     log('設定のパースに失敗しました: ' + e.message, 'err');
-    log('student.html の firebaseConfig の中身（{ } の中）をそのまま貼り付けてください', 'err');
+    log('apiKey: "..." から appId: "..." までの行をそのまま貼り付けてください', 'err');
   }
 }
 
