@@ -443,9 +443,11 @@ function queueMsg(msg) {
 }
 
 function flushMsgQueue() {
-  const batch = msgQueue.splice(0, msgQueue.length);
-  rafPending  = false;
-  if (batch.length === 0) return;
+  rafPending = false;
+  if (msgQueue.length === 0) return;
+
+  // 1フレームで最大10件だけ処理（残りは次のフレームへ）
+  const batch = msgQueue.splice(0, 10);
 
   const frag = document.createDocumentFragment();
   batch.forEach(msg => {
@@ -471,13 +473,19 @@ function flushMsgQueue() {
   $('msgs-empty').style.display = 'none';
   msgsEl.appendChild(frag);
 
-  // 超過分を一括削除
+  // firstElementChild はO(1)で高速
   while (msgCount > MAX_MSGS) {
-    const first = msgsEl.querySelector('.msg');
+    const first = msgsEl.firstElementChild;
     if (first) { first.remove(); msgCount--; }
     else break;
   }
   msgsEl.scrollTop = msgsEl.scrollHeight;
+
+  // まだキューに残っていれば次のフレームで続きを処理
+  if (msgQueue.length > 0) {
+    rafPending = true;
+    requestAnimationFrame(flushMsgQueue);
+  }
 }
 
 function clearChatDisplay() {
