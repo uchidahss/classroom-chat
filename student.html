@@ -387,7 +387,7 @@ function startListening() {
 
   db.ref(`classrooms/${ROOM}/messages`)
     .orderByChild('timestamp').startAt(t0).limitToLast(50)
-    .on('child_added', snap => { if (ready) renderMsg(snap.val()); });
+    .on('child_added', snap => { if (ready) queueMsg(snap.val()); });
 
   db.ref(`classrooms/${ROOM}/redspas`)
     .orderByChild('timestamp').startAt(t0).limitToLast(10)
@@ -428,38 +428,60 @@ function faintBg(hex) {
   return `rgba(${r},${g},${b},0.13)`;
 }
 
-// ---- Render message ----
-let msgCount = 0;
+// ---- Message queue（まとめて描画でフリーズ防止） ----
+let msgCount   = 0;
 const MAX_MSGS = 50;
+let msgQueue   = [];
+let rafPending = false;
 
-function renderMsg(msg) {
+function queueMsg(msg) {
+  msgQueue.push(msg);
+  if (!rafPending) {
+    rafPending = true;
+    requestAnimationFrame(flushMsgQueue);
+  }
+}
+
+function flushMsgQueue() {
+  const batch = msgQueue.splice(0, msgQueue.length);
+  rafPending  = false;
+  if (batch.length === 0) return;
+
+  const frag = document.createDocumentFragment();
+  batch.forEach(msg => {
+    const isMine = msg.studentId === myId;
+    const color  = msg.color || '#4F46E5';
+    const wrap   = document.createElement('div');
+    wrap.className = 'msg ' + (isMine ? 'mine' : 'other');
+    const nameEl = document.createElement('div');
+    nameEl.className = 'msg-name';
+    nameEl.style.color = color;
+    nameEl.textContent = isMine ? myName : (msg.name || '匿名');
+    wrap.appendChild(nameEl);
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.textContent = msg.text;
+    bubble.style.background = faintBg(color);
+    bubble.style.color = color;
+    wrap.appendChild(bubble);
+    frag.appendChild(wrap);
+    msgCount++;
+  });
+
   $('msgs-empty').style.display = 'none';
-  const isMine = msg.studentId === myId;
-  const color  = msg.color || '#4F46E5';
-  const wrap   = document.createElement('div');
-  wrap.className = 'msg ' + (isMine ? 'mine' : 'other');
-  const nameEl = document.createElement('div');
-  nameEl.className = 'msg-name';
-  nameEl.style.color = color;
-  nameEl.textContent = isMine ? myName : (msg.name || '匿名');
-  wrap.appendChild(nameEl);
-  const bubble = document.createElement('div');
-  bubble.className = 'msg-bubble';
-  bubble.textContent = msg.text;
-  bubble.style.background = faintBg(color);
-  bubble.style.color = color;
-  wrap.appendChild(bubble);
-  msgsEl.appendChild(wrap);
-  msgCount++;
-  // カウンターで管理（DOM検索なし）
-  if (msgCount > MAX_MSGS) {
+  msgsEl.appendChild(frag);
+
+  // 超過分を一括削除
+  while (msgCount > MAX_MSGS) {
     const first = msgsEl.querySelector('.msg');
     if (first) { first.remove(); msgCount--; }
+    else break;
   }
   msgsEl.scrollTop = msgsEl.scrollHeight;
 }
 
 function clearChatDisplay() {
+  msgQueue = []; rafPending = false;
   while (msgsEl.firstChild) msgsEl.removeChild(msgsEl.firstChild);
   msgCount = 0;
   $('msgs-empty').style.display = 'block';
