@@ -40,7 +40,7 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Hiragino Kaku Gothic ProN',
 #name-btn:active { opacity:.85; }
 #name-btn:disabled { opacity:.45; pointer-events:none; }
 
-#app { display:none; height:100dvh; height:100svh; flex-direction:column; overflow:hidden; }
+#app { display:none; position:fixed; top:0; left:0; right:0; bottom:0; flex-direction:column; overflow:hidden; }
 
 .app-head { flex-shrink:0; background:var(--surface); border-bottom:1px solid var(--border); padding:0 1rem; }
 .head-row { height:48px; display:flex; align-items:center; gap:.625rem; }
@@ -326,11 +326,11 @@ function launchApp() {
   db.ref(`classrooms/${ROOM}/settings`).get().then(snap => {
     if (snap.exists() && snap.val().subject) $('s-title').textContent = snap.val().subject;
   }).catch(() => {});
-  // キーボードが出たらアプリ高さをキーボードの上までに縮める
+  // キーボード分だけ bottom を上げてアプリをキーボードの上に収める
   if (window.visualViewport) {
     window.visualViewport.addEventListener('resize', () => {
-      $('app').style.height = window.visualViewport.height + 'px';
-      window.scrollTo(0, 0);
+      const kb = Math.max(0, window.innerHeight - window.visualViewport.height);
+      $('app').style.bottom = kb + 'px';
     });
   }
 }
